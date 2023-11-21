@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+from classes import Classes
 
 def odometry(self, motor_left_speed, motor_right_speed, pre_time, X_init, Y_init, theta_init) : #...) : 
                                                                     # variables récupérées par CV
@@ -25,10 +26,10 @@ def odometry(self, motor_left_speed, motor_right_speed, pre_time, X_init, Y_init
     delta_Y = delta_S * np.sin(theta_init + delta_Theta/2)
 
     # update of the position (coordinates and angle/orientation) of the Thymio after a time of delta_t  :
-    X = X_init + delta_X * delta_t #récupérer les valeurs X_init et Y_init de CV
-    Y = Y_init + delta_Y * delta_t 
+    thymio.X = X_init + delta_X * delta_t #récupérer les valeurs X_init et Y_init de CV
+    thymio.Y = Y_init + delta_Y * delta_t 
 
-    theta = theta_init + delta_Theta ## revoir calcul
+    thymio.theta = theta_init + delta_Theta ## revoir calcul
 
     #update du pre_time
     pre_time = time.time()
