@@ -4,7 +4,9 @@ import time
 
 from classes import Classes
 
-def odometry(self, motor_left_speed, motor_right_speed, pre_time, X_init, Y_init, theta_init) : #...) : 
+#thymio = setPositions(pos_X, pos_Y, theta)
+
+def odometry(self, motor_left_speed, motor_right_speed, pre_time, X_init, Y_init, theta_init, Thymio) : #...) : 
                                                                     # variables récupérées par CV
     ## ATTENTION AUX UNITÉS DES VARIABLES à définir
     #penser au conversion des  unités
@@ -14,6 +16,8 @@ def odometry(self, motor_left_speed, motor_right_speed, pre_time, X_init, Y_init
     self.speed_L = motor_left_speed #motor_left_speed read only variable --> in main : get_motor_speed ?
     self.speed_R = motor_right_speed #motor_right_speed read only variable
     self.wheel_dist = 3 #valeur absurde => mesurer la correct valeur entre les 2 roues du Thymio
+
+    #thymio = Thymio(pos_X, pos_Y, theta)
 
     delta_t = time.time() - pre_time #time.time() to get the value of the time
 
@@ -26,15 +30,22 @@ def odometry(self, motor_left_speed, motor_right_speed, pre_time, X_init, Y_init
     delta_Y = delta_S * np.sin(theta_init + delta_Theta/2)
 
     # update of the position (coordinates and angle/orientation) of the Thymio after a time of delta_t  :
-    thymio.X = X_init + delta_X * delta_t #récupérer les valeurs X_init et Y_init de CV
-    thymio.Y = Y_init + delta_Y * delta_t 
+   
 
-    thymio.theta = theta_init + delta_Theta ## revoir calcul
+    ##&&&&&& ATTTTEEENTIIIOOONNNNNN
+    Thymio.vitesse_X = X_init + delta_X * delta_t #récupérer les valeurs X_init et Y_init de CV
+    Thymio.vitesse_Y = Y_init + delta_Y * delta_t ######ATTENTIUON C?EST UNE VITESSE !!! pas une position
+
+    Thymio.vitesse_theta = theta_init + delta_Theta ## revoir calcul --> vitesse anglulaire
+    ##&&&&&& ATTTTEEENTIIIOOONNNNNN
 
     #update du pre_time
     pre_time = time.time()
 
-    return  X, Y, theta # pour envoyer ces infos a MC
+    #return  X, Y, theta # pour envoyer ces infos a MC
 
 
     # position  de base de X, Y et Theta recupérée par la CV
+
+
+    print(Thymio)
