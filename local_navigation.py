@@ -3,7 +3,7 @@ import numpy as np
 
 class LocalNavigation :
 
-    def __init__(self, prox_horizontal, motor_left_target, motor_right_target) :
+    def __init__(self, prox_horizontal) : #, motor_left_target, motor_right_target) :
 
         self.proximity_sensors = prox_horizontal #proxymity_sensors, read only variable
         # prox_horizontal [0,1,2,3,4] -> front sensors [5,6] -> back sensors
@@ -11,32 +11,97 @@ class LocalNavigation :
         # initialization to 0 of the motors
         self.motor_left = 0 #motor_left_target --> target value set by the user (not read only)
         self.motor_right = 0 #motor_left_target
-        self.obstacle = 0
+        self.obstacle = 0 #state if there is an obstacle
 
     def obstacle_verification(self, prox_horizontal) :
 
         self.proximity_sensors = prox_horizontal
 
-        if self.proximity_sensors > 0 :
+        threshold_H = 1000 # dummy value
+        threshold_L = 100  # dummy value
 
-            #smth smth
-            self.obstacle = 1
+        if self.obstacle == 0 :
+            if self.proximity_sensors[0] > threshold_H :
+
+                #smth smth
+                self.obstacle = 1
+            elif self.proximity_sensors[1] > threshold_H :
+
+                #smth smth
+                self.obstacle = 1
+            elif self.proximity_sensors[2] > threshold_H :
+
+                #smth smth
+                self.obstacle = 1
+            elif self.proximity_sensors[3] > threshold_H :
+
+                #smth smth
+                self.obstacle = 1
+
+            elif self.proximity_sensors[4] > threshold_H :
+
+                #smth smth
+                self.obstacle = 1
         
-        else :
-            self.obstacle = 0
+        elif self.obstacle == 1 :
+            if self.proximity_sensors[0] < threshold_L :
+
+                #smth smth
+                self.obstacle = 0
+            elif self.proximity_sensors[1] < threshold_L :
+
+                #smth smth
+                self.obstacle = 0
+            elif self.proximity_sensors[2] < threshold_L :
+
+                #smth smth
+                self.obstacle = 0
+            elif self.proximity_sensors[3] < threshold_L :
+
+                #smth smth
+                self.obstacle = 0
+
+            elif self.proximity_sensors[4] < threshold_L :
+
+                #smth smth
+                self.obstacle = 0
 
         #return self.obstacle
 
 
-    def avoidance(self, prox_horizontal, motor_left_target, motor_right_target) :
+    def obstacle_avoidance(self, prox_horizontal, motor_left_target, motor_right_target) :
 
         self.proximity_sensors = prox_horizontal #proxymity_sensors
         self.motor_left = motor_left_target
         self.motor_right = motor_right_target
 
-        if (self.obstacle) :
+        w_l = [1,  -1, -1, 1, -1, 15, -5, 8, 0]
+        w_r = [-1,  1, -1, -1, 1, -5, 15, 0, 8]
 
-            ##need to avoid the obstacle
+        x = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        y = [0, 0]
+
+        if self.obstacle != 0 :
+            #memory
+            x[7] = y[0]//10
+            x[8] = y[1]//10
+            for i in range(7):
+                # Get and scale inputs
+                x[i] = prox_horizontal[i] //100
+            y = [0,0]    
+            
+            for i in range(len(x)):    
+                # Compute outputs of neurons and set motor powers
+                y[0] = y[0] + x[i] * w_l[i] 
+                y[1] = y[1] + x[i] * w_r[i]
+        else : 
+            # In case we would like to stop the robot
+            y = [0,0] 
+                
+        
+        # Set motor powers
+        motor_left_target = y[0]
+        motor_right_target = y[1]
 
 
 
@@ -47,6 +112,7 @@ class LocalNavigation :
 
 
 
+'''
 speed0 = 100       # nominal speed
 speedGain = 2      # gain used with ground gradient
 obstThrL = 10      # low obstacle threshold to switch state 1->0
@@ -58,13 +124,21 @@ obst = [0,0]       # measurements from left and right prox sensors
 
 #timer_period[0] = 10   # 10ms sampling time
 
+def obstacle_verification(self, prox_horizontal) :
 
+    proximity_sensors = prox_horizontal
+
+    if self.proximity_sensors > 0 :
+
+        #smth smth
+        self.obstacle = 1
+    
+    else :
+        self.obstacle = 0
+
+    #return self.obstacle
  
-def timer0():
-    global prox_ground_delta, prox_horizontal, motor_left_target, motor_right_target, state, obst, obstThrH, obstThrL, obstSpeedGain, speed0, speedGain 
-    # acquisition from ground sensor for going toward the goal
-    diffDelta = prox_ground_delta[1] - prox_ground_delta[0]
-
+def obstacle_avoidance(prox_horizontal, motor_left_target, motor_right_target, state, obst, obstThrH, obstThrL, obstSpeedGain, speed0, speedGain) :
     # acquisition from the proximity sensors to detect obstacles
     obst = [prox_horizontal[0], prox_horizontal[4]]
     
@@ -103,3 +177,4 @@ def rotate(angle, coords):
     return R.dot(coords.transpose()).transpose()
 
 #other way to do is using the potential field navigation (view exo 4)
+'''
