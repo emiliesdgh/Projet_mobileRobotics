@@ -39,7 +39,7 @@ class KalmanFilter :
 
     def filter_kalman(self, X_est_pre, P_est_pre, Thymio) : #HT=None, HNT=None, RT=None, RNT=None) :
 
-        vision = 0
+       #vision = 0
         """
         Estimates the current state using input sensor data and the previous state
         
@@ -69,7 +69,7 @@ class KalmanFilter :
         ## Update         
         # y, H, and R for a posteriori estimate, depending on transition
 
-        if (vision) :
+        if (Thymio.vision) :
 
             y = [[Thymio.X_init],[self.v_X],[Thymio.Y_init],[self.v_Y],[Thymio.Theta_init],[self.v_Theta]] # -> x, y, theta : valeurs mesurées par la CV
                                                         # -> v_x, v_y, v_theta : vitesses
@@ -79,6 +79,8 @@ class KalmanFilter :
             R = np.eye(6) #valeurs absurde => R : matrice de covariences des capteurs/mesures
 
         else :
+
+            #odometry_update(self, motor_left_speed, motor_right_speed, pre_time, Thymio)
 
             y = [[0],[self.v_X],[0],[self.v_Y],[0],[self.v_Theta]]
 
@@ -162,6 +164,11 @@ class KalmanFilter :
 
 
         print(Thymio)
+
+
+    def angle_error(self) :
+        
+        a = 0
 
 
 

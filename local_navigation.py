@@ -11,21 +11,21 @@ class LocalNavigation :
         # initialization to 0 of the motors
         self.motor_left = 0 #motor_left_target --> target value set by the user (not read only)
         self.motor_right = 0 #motor_left_target
-        self.state = 0
+        self.obstacle = 0
 
-    def obstacle(self, prox_horizontal) :
+    def obstacle_verification(self, prox_horizontal) :
 
         self.proximity_sensors = prox_horizontal
 
         if self.proximity_sensors > 0 :
 
             #smth smth
-            self.state = 1
+            self.obstacle = 1
         
         else :
-            self.state = 0
+            self.obstacle = 0
 
-        return self.state
+        #return self.obstacle
 
 
     def avoidance(self, prox_horizontal, motor_left_target, motor_right_target) :
@@ -33,6 +33,12 @@ class LocalNavigation :
         self.proximity_sensors = prox_horizontal #proxymity_sensors
         self.motor_left = motor_left_target
         self.motor_right = motor_right_target
+
+        if (self.obstacle) :
+
+            ##need to avoid the obstacle
+
+
 
 
 

@@ -4,8 +4,7 @@ import time
 
 #import the classes from the other modules
 from local_navigation import LocalNavigation
-#from filtering 
-import filtering
+from filtering import KalmanFilter
 
 class Classes :
 
@@ -22,6 +21,7 @@ class Thymio :
         self.pos_Y = 0
 
         self.theta = 0
+        self.vision = 0 #if CV is done or not
 
     def setPositions (self) :
         
