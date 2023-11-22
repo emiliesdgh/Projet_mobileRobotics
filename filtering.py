@@ -4,6 +4,7 @@ import time
 
 from classes import Classes
 
+Ts = 0.1
 
 class KalmanFilter :
 
@@ -15,6 +16,14 @@ class KalmanFilter :
         self.proximity_sensors = prox_horizontal #proxymity_sensors
 
         self.X_est = [0] * 6 # contient [x, x°, y, y°, theta, theta°]
+
+        self.pos_X = 0
+        self.v_X = 0
+        self.pos_Y = 0
+        self.v_Y = 0
+        self.pos_Theta = 0
+        self.v_Theta = 0
+
         self.P_est = np.eye(6)
 
         self.A = [[1, Ts, 0, 0, 0, 0], 
@@ -24,9 +33,11 @@ class KalmanFilter :
                   [0, 0, 0, 0, 1, Ts],
                   [0, 0, 0, 0, 0,  1]]
         
+        self.Q = np.eye(6) # valeurs de la matrice à changer
+        
 
 
-    def filter_kalman(self, X_est_pre, P_est_pre) : #HT=None, HNT=None, RT=None, RNT=None) :
+    def filter_kalman(self, X_est_pre, P_est_pre, Thymio) : #HT=None, HNT=None, RT=None, RNT=None) :
 
         vision = 0
         """
@@ -50,17 +61,17 @@ class KalmanFilter :
         
         # Estimated covariance of the state
         #P_estimation = np.dot(A, np.dot(P_est_pre, A.T))
-        P_estimation = self.A @ (P_est_pre @ A.T)
+        P_estimation = self.A @ (P_est_pre @ self.A.T)
 
 
-        P_estimation = P_estimation + Q if type(Q) != type(None) else P_estimation
+        P_estimation = P_estimation + self.Q if type(self.Q) != type(None) else P_estimation
         
         ## Update         
         # y, H, and R for a posteriori estimate, depending on transition
 
         if (vision) :
 
-            y = [[x],[v_x],[y],[v_y],[theta],[v_theta]] # -> x, y, theta : valeurs mesurées par la CV
+            y = [[Thymio.X_init],[self.v_X],[Thymio.Y_init],[self.v_Y],[Thymio.Theta_init],[self.v_Theta]] # -> x, y, theta : valeurs mesurées par la CV
                                                         # -> v_x, v_y, v_theta : vitesses
 
             H = np.eye(6) # => y = [x, x°, y, y°, theta, theta°]T
@@ -69,7 +80,7 @@ class KalmanFilter :
 
         else :
 
-            y = [[0],[v_x],[0],[v_y],[0],[v_theta]]
+            y = [[0],[self.v_X],[0],[self.v_Y],[0],[self.v_Theta]]
 
             H = [[0, 0, 0, 0, 0, 0], 
                  [0, 1, 0, 0, 0, 0],
@@ -108,7 +119,7 @@ class KalmanFilter :
 
 
 
-    def odometry_update(self, motor_left_speed, motor_right_speed, pre_time, X_init, Y_init, theta_init, Thymio) : #...) : 
+    def odometry_update(self, motor_left_speed, motor_right_speed, pre_time, Thymio) : # X_init, Y_init, theta_init, Thymio) : #...) : 
                                                                     # variables récupérées par CV
         ## ATTENTION AUX UNITÉS DES VARIABLES à définir
         #penser au conversion des  unités
@@ -127,18 +138,18 @@ class KalmanFilter :
         delta_Theta = (self.speed_R - self.speed_L) / self.wheel_dist
 
         # calculations of the variations of the coordinates of the Thymio :
-        delta_X = delta_S * np.cos(theta_init + delta_Theta/2) # ou ?((theta_init + delta_Theta)/2)?? savoir lequel est juste 
+        delta_X = delta_S * np.cos(Thymio.Theta_init + delta_Theta/2) # ou ?((theta_init + delta_Theta)/2)?? savoir lequel est juste 
         # ma version c'est celle du cours en théorie
-        delta_Y = delta_S * np.sin(theta_init + delta_Theta/2)
+        delta_Y = delta_S * np.sin(Thymio.Theta_init + delta_Theta/2)
 
         # update of the position (coordinates and angle/orientation) of the Thymio after a time of delta_t  :
     
 
         ##&&&&&& ATTTTEEENTIIIOOONNNNNN
-        Thymio.vitesse_X = X_init + delta_X * delta_t #récupérer les valeurs X_init et Y_init de CV
-        Thymio.vitesse_Y = Y_init + delta_Y * delta_t ######ATTENTIUON C?EST UNE VITESSE !!! pas une position
+        self.v_X = Thymio.X_init + delta_X * delta_t #récupérer les valeurs X_init et Y_init de CV
+        self.v_Y = Thymio.Y_init + delta_Y * delta_t ######ATTENTIUON C?EST UNE VITESSE !!! pas une position
 
-        Thymio.vitesse_theta = theta_init + delta_Theta ## revoir calcul --> vitesse anglulaire
+        self.v_Theta = Thymio.Theta_init + delta_Theta ## revoir calcul --> vitesse anglulaire
         ##&&&&&& ATTTTEEENTIIIOOONNNNNN
 
         #update du pre_time
