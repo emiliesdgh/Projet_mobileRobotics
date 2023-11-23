@@ -299,7 +299,7 @@ fig_astar, ax_astar = create_empty_plot(max_val_col, max_val_row)
 ax_astar.imshow(occupancy_grid, cmap=cmap)
 
 # Plot the best path found and the list of visited nodes
-ax_astar.scatter(visitedNodes_xy[:,0], visitedNodes_xy[:,1], marker="o", color = 'orange');
-ax_astar.plot(path_xy[:,0], path_xy[:,1], marker="o", color = 'blue');
-ax_astar.scatter(start[0], start[1], marker="o", color = 'green', s=200);
-ax_astar.scatter(goal[0], goal[1], marker="o", color = 'purple', s=200);
+ax_astar.scatter(visitedNodes_xy[:,0], visitedNodes_xy[:,1], marker="o", color = 'orange')
+ax_astar.plot(path_xy[:,0], path_xy[:,1], marker="o", color = 'blue')
+ax_astar.scatter(start[0], start[1], marker="o", color = 'green', s=200)
+ax_astar.scatter(goal[0], goal[1], marker="o", color = 'purple', s=200)
