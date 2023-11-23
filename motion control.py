@@ -67,4 +67,4 @@ def go_to_next_point(path, current_position, obstacle, robot): #current position
         robot.setSpeed(0)
         path.pop(0)                                                 #adapt this with the class
     else:
-        pass      
+        pass        
