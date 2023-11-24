@@ -57,6 +57,7 @@ async def wall_following(motor_speed=100, wall_threshold=500, white_threshold=20
                     
                 prev_state="turning"
         
+        
         else:
             if prev_state=="turning": 
                 if verbose: print("\t Contourning obstacle")
