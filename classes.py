@@ -30,12 +30,21 @@ class Thymio :
         self.motor_target_left=0
         self.motor_target_right=0
 
-    def setPositions (self) :
-        
-        self.pos_X = 0
-        self.pos_Y = 0
+        self.path=[]
+        self.goal_angle=np.mod(np.arctan2(-(self.path[0][1]-self.path[1][1]),self.path[0][0]-self.path[1][0],2*np.pi))
 
-        self.theta = 0
+    def setPositions (self,x,y,theta) :
+        
+        self.pos_X = x
+        self.pos_Y = y
+
+        self.theta = theta
+
+    def getPositions(self):
+        return (self.pos_X,self.pos_Y)
+    
+    def getAngle(self):
+        return self.theta
 
     def setGoalReached(self,boolean):
         self.goal_reached=boolean
@@ -53,8 +62,28 @@ class Thymio :
         self.int_error=error
 
     def getIntError(self):
-        return 
+        return self.int_error
 
-    def setSpeed(self,speed):
+    def setSpeedLeft(self,speed):
         self.motor_target_left=speed
+    
+    def setSpeedRight(self,speed):
         self.motor_target_right=speed
+
+    def setPath(self,path):
+        self.path=path
+
+    def getPath(self):
+        return self.path
+
+    def popPath(self):
+        self.path=self.path.pop(0)
+
+    def getPath(self):
+        return self.path
+    
+    def setGoalAngle(self,angle):
+        self.goal_angle=angle
+    
+    def getGoalAngle(self):
+        return self.goal_angle

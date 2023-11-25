@@ -2,6 +2,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
+import classes
 
 
 class globalNavigation:
@@ -37,7 +38,7 @@ class globalNavigation:
     
     # Implementation of A* algorithm
 
-    def reconstruct_path(self, cameFrom, current):
+    def reconstruct_path(self, cameFrom, current, robot):
         """
         Recurrently reconstructs the path from start node to the current node
         :param cameFrom: map (dictionary) containing for each node n the node immediately 
@@ -51,7 +52,8 @@ class globalNavigation:
             # Add where the current node came from to the start of the list
             total_path.insert(0, cameFrom[current]) 
             current=cameFrom[current]
-        return total_path
+        robot.setPath=total_path
+        
 
     def A_Star(self, start, goal, occupancy_grid, movement_type="4N"):
         """
