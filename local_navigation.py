@@ -1,6 +1,94 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from tdmclient import ClientAsync
+client = ClientAsync()
+node = await client.wait_for_node()
+await node.lock()
+
+test_functions = True
+
+await node.wait_for_variables()
+
+def test_saw_wall(wall_threshold, verbose=False): ## fonction necessaire !
+    """
+    Tests whether one of the proximity sensors saw a wall
+    param wall_threshold: threshold starting which it is considered that the sensor saw a wall
+    param verbose: whether to print status messages or not
+    """
+    if any([x>wall_threshold for x in node['prox.horizontal'][:-2]]):
+        if verbose: print("\t\t Saw a wall")
+        return True
+    
+    return False
+
+async def wall_following(motor_speed=100, wall_threshold=500, white_threshold=200, verbose=False):
+    """
+    Wall following behaviour of the FSM
+    param motor_speed: the Thymio's motor speed
+    param wall_threshold: threshold starting which it is considered that the sensor saw a wall
+    param white_threshold: threshold starting which it is considered that the ground sensor saw white
+    param verbose: whether to print status messages or not
+    """
+    
+    if verbose: print("Starting wall following behaviour")
+    saw_black = False
+    
+    if verbose: print("\t Moving forward")
+    await node.set_variables(motors(motor_speed, motor_speed))
+           
+    prev_state="forward"
+    
+    while not saw_black:
+
+    ##tester si les conditions des if/elif fonctionnent!!    
+        if test_saw_wall(wall_threshold, verbose=False):
+            if prev_state=="forward": 
+                if verbose: print("\tSaw wall, turning")
+                    #if trouver quel sensors voit l'obstacle pour savoir si on tourne d'un coté ou de l'autre
+                    #if sensor [1] gauche > sensor [3] droite
+                if 'prox.horizontal[1]' > 'prox.horizontal[3]' :
+                    await node.set_variables(motors(motor_speed, -motor_speed))
+                    print("\tSaw wall, turning clockwise")
+                    
+                elif 'prox.horizontal[1]' < 'prox.horizontal[3]' :
+                    await node.set_variables(motors(-motor_speed, motor_speed))
+                    print("\tSaw wall, turning counterclockkwise")
+                    
+                prev_state="turning"
+        
+        
+        else:
+            if prev_state=="turning": 
+                if verbose: print("\t Contourning obstacle")
+                    #ici au lieu d'avancer droit, on contourne l'obstacle
+                    # correct si on tourne clockwise, faire l'inverse si on tourne contour clockwise
+                if 'prox.horizontal[1]' > 'prox.horizontal[3]' :
+                    await node.set_variables(motors(motor_speed-40, motor_speed))
+                    prev_state="forward"
+                    await client.sleep(18)
+                    await node.set_variables(motors(motor_speed, -motor_speed))
+                    await client.sleep(1)
+                    saw_black = True
+                    
+                elif 'prox.horizontal[1]' > 'prox.horizontal[3]' :
+                    await node.set_variables(motors(motor_speed, motor_speed-40))
+                    prev_state="forward"
+                    await client.sleep(18)
+                    await node.set_variables(motors(-motor_speed, motor_speed))
+                    await client.sleep(1)
+                    saw_black = True
+
+        #if test_saw_black(white_threshold, verbose): saw_black = True
+        await client.sleep(0.1) #otherwise, variables would not be updated
+    return 
+
+if test_functions:
+    await wall_following(verbose=True)
+    await node.set_variables(motors(0, 0))
+
+
+'''
 class LocalNavigation :
 
     def __init__(self, prox_horizontal) : #, motor_left_target, motor_right_target) :
@@ -102,7 +190,7 @@ class LocalNavigation :
         # Set motor powers
         motor_left_target = y[0]
         motor_right_target = y[1]
-
+'''
 
 
 
