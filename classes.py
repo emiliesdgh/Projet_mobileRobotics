@@ -87,3 +87,6 @@ class Thymio :
     
     def getGoalAngle(self):
         return self.goal_angle
+    
+    def setVisionDone(self,boolean):
+        self.vision = boolean

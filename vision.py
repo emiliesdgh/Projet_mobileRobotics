@@ -238,7 +238,7 @@ class Vision :
                     dist_mx[j][i+1] = np.sqrt(np.power((self.cor[i][0]-self.cor[j-1][0]),2)+np.power((self.cor[i][1]-self.cor[j-1][1]),2))
         for i in range(0,(s-1)):
             if i == 0:
-                line = np.transpose(np.array(draw.line(self.x_back,self.y_back, x_g,y_g)))
+                line = np.transpose(np.array(draw.line(self.x_back,self.y_back, self.x_goal,self.y_goal)))
                 data = self.thresh1[line[:, 1], line[:, 0]]
                 if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                     dist_mx[0][s-1] = np.sqrt(np.power((self.x_goal-self.x_back),2)+np.power((self.y_goal-self.y_back),2))
@@ -251,4 +251,5 @@ class Vision :
         robot.setDistMx(dist_mx)
         robot.setCor(self.cor)
         robot.setS(s)
+        robot.setVisionDone(True)
 
