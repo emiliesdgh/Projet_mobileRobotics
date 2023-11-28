@@ -41,7 +41,6 @@ def test_saw_wall(wall_threshold, verbose=False): ## fonction necessaire !
     
     return False
 
-
 def clockwise(verbose=False) :
     #print(prox.horizontal[1])
     prox = list(node["prox.horizontal"]) + [0]

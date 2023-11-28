@@ -17,7 +17,6 @@ test_functions = True
 
 
 
-
 '''
 await node.wait_for_variables()
 

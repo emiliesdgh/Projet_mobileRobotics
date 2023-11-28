@@ -130,7 +130,7 @@ class KalmanFilter :
 
         self.speed_L = motor_left_speed #motor_left_speed read only variable --> in main : get_motor_speed ?
         self.speed_R = motor_right_speed #motor_right_speed read only variable
-        self.wheel_dist = 3 #valeur absurde => mesurer la correct valeur entre les 2 roues du Thymio
+        self.wheel_dist = 9.5 #8 #cm ou 9.5 ou 11 #valeur absurde => mesurer la correct valeur entre les 2 roues du Thymio
 
         #thymio = Thymio(pos_X, pos_Y, theta)
 
