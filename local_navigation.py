@@ -8,6 +8,17 @@ await node.lock()
 
 test_functions = True
 
+
+
+
+
+
+
+
+
+
+
+'''
 await node.wait_for_variables()
 
 def test_saw_wall(wall_threshold, verbose=False): ## fonction necessaire !
@@ -88,7 +99,7 @@ if test_functions:
     await node.set_variables(motors(0, 0))
 
 
-'''
+
 class LocalNavigation :
 
     def __init__(self, prox_horizontal) : #, motor_left_target, motor_right_target) :
@@ -190,17 +201,7 @@ class LocalNavigation :
         # Set motor powers
         motor_left_target = y[0]
         motor_right_target = y[1]
-'''
 
-
-
-
-
-
-
-
-
-'''
 speed0 = 100       # nominal speed
 speedGain = 2      # gain used with ground gradient
 obstThrL = 10      # low obstacle threshold to switch state 1->0
