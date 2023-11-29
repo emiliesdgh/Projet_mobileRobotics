@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+from tdmclient import ClientAsync, aw
 
 """ #import the classes from the other modules
 from local_navigation import LocalNavigation
@@ -23,20 +24,30 @@ class Thymio :
         self.theta = 0
         self.vision = 0     #if CV is done or not
 
-        self.goal_reached=False #has the robot reached the next point
-        self.prev_error=0   #for derivative part of PID control
-        self.int_error=0    #for integral part of PID control
+        self.goal_reached=False     #has the robot reached the next point
+        self.prev_error=0           #for derivative part of PID control
+        self.int_error=0            #for integral part of PID control
 
         self.motor_target_left=0
         self.motor_target_right=0
 
         self.path=[]
-        self.goal_angle=np.mod(np.arctan2(-(self.path[0][1]-self.path[1][1]),self.path[0][0]-self.path[1][0],2*np.pi))
+        self.goal_angle=0 
 
-    def setPositions (self,x,y,theta) :
+        self.goal_X=0
+        self.goal_Y=0
+
+        self.dist_mx = []
+        self.cor=[]
+        self.S=0
+
+    def setPositions (self,x,y,x_g,y_g,theta) :
         
         self.pos_X = x
         self.pos_Y = y
+
+        self.goal_X = x_g
+        self.goal_Y = y_g
 
         self.theta = theta
 
@@ -46,47 +57,32 @@ class Thymio :
     def getAngle(self):
         return self.theta
 
-    def setGoalReached(self,boolean):
-        self.goal_reached=boolean
-
-    def getGoalReached(self):
-        return self.goal_reached
-
-    def setPrevError(self, error):
-        self.prev_error=error
-
-    def getPrevError(self):
-        return self.prev_error
-    
-    def setIntError(self, error):
-        self.int_error=error
-
-    def getIntError(self):
-        return self.int_error
-
-    def setSpeedLeft(self,speed):
+    def setSpeedLeft(self,speed,node):
         self.motor_target_left=speed
+        aw(node.set_variables({"motor.left.target": [speed]}))
     
-    def setSpeedRight(self,speed):
+    def setSpeedRight(self,speed,node):
         self.motor_target_right=speed
+        aw(node.set_variables({"motor.right.target": [speed]}))
 
     def setPath(self,path):
         self.path=path
-
-    def getPath(self):
-        return self.path
-
-    def popPath(self):
-        self.path=self.path.pop(0)
-
-    def getPath(self):
-        return self.path
+        self.goal_angle=np.mod(np.arctan2(-(self.path[1][1] - self.path[0][1]), self.path[1][0] - self.path[0][0]), 2*np.pi)
     
-    def setGoalAngle(self,angle):
-        self.goal_angle=angle
-    
-    def getGoalAngle(self):
-        return self.goal_angle
-    
-    def setVisionDone(self,boolean):
-        self.vision = boolean
+    def setDistMx(self,dist):
+        self.dist_mx=dist
+
+    def getDistMx(self):
+        return self.dist_mx
+
+    def setCor(self,cor):
+        self.cor=cor
+
+    def getCor(self):
+        return self.cor
+
+    def setS(self,s):
+        self.S=s
+
+    def getS(self):
+        return self.S
