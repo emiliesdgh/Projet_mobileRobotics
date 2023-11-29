@@ -1,5 +1,4 @@
 from classes import Thymio
-import local_navigation
 import numpy as np
 
 #Define constants
@@ -15,45 +14,51 @@ K=200                       #find this values
 
 def PIDcontrol(error,robot):
         p_speed = KP * error
-        robot.setIntError(robot.getIntError()+error)
-        i_speed = KI * robot.getIntError()
-        d_speed = KD * ((error - robot.getPrevError()))
-        robot.setPrevError(error)
+        robot.int_error += error
+        i_speed = KI * robot.int_error
+        d_speed = KD * (error - robot.prev_error)
+        robot.prev_error = error
         return p_speed+i_speed+d_speed
 
-def turn(current_angle, robot):       #might need to adapt speed units   NEED: variable for current angle from odometry
-    goal_angle = robot.getGoalAngle()
-
-    error=goal_angle-current_angle
+def turn(current_angle, robot, node):       #might need to adapt speed units   NEED: variable for current angle from odometry
+    error=robot.goal_angle-current_angle
     if (abs(error)<=ANGLE_ERROR_TRESH):
-        robot.setGoalReached(True)
-        robot.setPrevError(0)
-        robot.setIntError(0)
-        robot.setSpeed(0)
+        robot.goal_reached = True
+        robot.prev_error = 0
+        robot.int_error = 0
+        robot.setSpeedRight(0,node)
+        robot.setSpeedLeft(0,node)
     else:
-        speed=PIDcontrol(error,robot)
-        robot.setSpeedRight(speed)
-        robot.setSpeedLeft(-speed)
-        
+        speed=min(MAX_SPEED, max(-MAX_SPEED, PIDcontrol(error,robot)))
+        robot.setSpeedRight(speed,node)
+        robot.setSpeedLeft(-speed,node)   
+            
 
-def go_to_next_point(current_angle, current_position, obstacle, robot):  #current position given by odometry, obstacle is of class Local Navigation, check if other KP, KI, KD needed
-    robot.setGoalReached(False)                                 #NEED: variable for obstacle from local navigation
-    deltax= current_position[0]-robot.getPath()[1][0]
-    deltay= current_position[1]-robot.getPath()[1][1]
+def go_to_next_point(current_angle, current_position, obstacle, robot, node): 
+    robot.goal_reached = False    #not sure this is useful anymore
+    deltax= current_position[0]-robot.path[1][0]
+    deltay= current_position[1]-robot.path[1][1]
     distance=deltax**2+deltay**2
     error=np.sqrt(distance)
     if (obstacle==0 and abs(distance)>DIST_TRESH**2):
-        robot.setSpeed(MAX_SPEED)
+        rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
+        leftspeed = min(MAX_SPEED, max(-MAX_SPEED, MAX_SPEED-rspeed))
+        rightspeed = min(MAX_SPEED, max(-MAX_SPEED, MAX_SPEED+rspeed))
+        robot.setSpeedRight(MAX_SPEED,node)
+        robot.setSpeedLeft(MAX_SPEED,node)
     elif (obstacle==0 and abs(distance)<DIST_TRESH**2):
         fspeed = K*MAX_SPEED*error
-        rspeed = PIDcontrol(current_angle-robot.getGoalAngle(),robot)
-        robot.setSpeedRight(fspeed+rspeed)
-        robot.setSpeedLeft(fspeed-rspeed)
+        rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
+        leftspeed = min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed))
+        rightspeed = min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed))
+        robot.setSpeedRight(rightspeed,node)
+        robot.setSpeedLeft(leftspeed,node)
     elif (obstacle==0 and abs(distance)<=DIST_ERROR_TRESH**2):
-        robot.setGoalReached(True)
-        robot.setPrevError(0)
-        robot.setIntError(0)
-        robot.setSpeed(0)
-        robot.popPath()                                             
+        robot.goal_reached = True
+        robot.prev_error = 0
+        robot.int_error = 0
+        robot.setSpeedRight(0,node)
+        robot.setSpeedLeft(0,node)
+        robot.setPath(robot.path.pop(0))                                  
     else:
-        pass        
+        pass              
