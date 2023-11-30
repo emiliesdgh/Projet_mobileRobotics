@@ -1,10 +1,3 @@
-'''from tdmclient import ClientAsync
-client = ClientAsync()
-node = await client.wait_for_node()
-await node.lock()'''
-
-#from classes import Thymio
-
 import classes
 from tdmclient import ClientAsync, aw
 client = ClientAsync()
@@ -45,7 +38,6 @@ def test_saw_osb(obs_threshold, verbose=False): ## fonction necessaire !
     param wall_threshold: threshold starting which it is considered that the sensor saw a wall
     param verbose: whether to print status messages or not
     """
-
     if any([x>obs_threshold for x in node['prox.horizontal'][:-2]]):
         if verbose: print("\t\t Saw a obstacle")
         return True
@@ -53,7 +45,7 @@ def test_saw_osb(obs_threshold, verbose=False): ## fonction necessaire !
     return False
 
 def clockwise(verbose=False) :
-    #print(prox.horizontal[1])
+
     prox = list(node["prox.horizontal"]) + [0]
     print(prox[1])
     print(prox[3])
@@ -96,7 +88,6 @@ async def obstacle_avoidance(motor_speed=100, obs_threshold=500, verbose=False):
 
                     if clockwise(verbose=False) :
                         #await print_sensor_values('prox.horizontal')
-
                         aw(node.set_variables(motors(motor_speed, -motor_speed)))
                         print("\tSaw wall, turning clockwise CLOCCCKKK")
                         clockwise_true = True
