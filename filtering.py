@@ -34,7 +34,7 @@ class KalmanFilter :
                   [0, 0, 0, 0, 0,  1]]
         
         self.Q = np.eye(6) # valeurs de la matrice à changer
-        
+         
 
 
     def filter_kalman(self, X_est_pre, P_est_pre, Thymio) : #HT=None, HNT=None, RT=None, RNT=None) :
@@ -76,7 +76,12 @@ class KalmanFilter :
 
             H = np.eye(6) # => y = [x, x°, y, y°, theta, theta°]T
 
-            R = np.eye(6) #valeurs absurde => R : matrice de covariences des capteurs/mesures
+            R = [[0, 0, 0, 0, 0, 0], 
+                 [0, 6.4883, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 6.4883, 0, 0],
+                 [0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0.6152]]#valeurs absurde => R : matrice de covariences des capteurs/mesures
 
         else :
 
@@ -91,7 +96,12 @@ class KalmanFilter :
                  [0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 1]] # => y = [0, x°, 0, y°, 0, theta°]T -> uniquement les vitesses
             
-            R = np.eye(6) #valeurs absurde => R : matrice de covariences des capteurs/mesures
+            R = [[0, 0, 0, 0, 0, 0], 
+                 [0, 6.4883, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 6.4883, 0, 0],
+                 [0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0.6152]]#valeurs absurde => R : matrice de covariences des capteurs/mesures
 
         
 
@@ -136,22 +146,25 @@ class KalmanFilter :
 
         delta_t = time.time() - pre_time #time.time() to get the value of the time
 
-        delta_S = (self.speed_R + self.speed_L) / 2
-        delta_Theta = (self.speed_R - self.speed_L) / self.wheel_dist
+        delta_S = (self.speed_R + self.speed_L) / 2 #forward speed
+
+        self.v_Theta = delta_Theta = (self.speed_R - self.speed_L) / self.wheel_dist # angular velocity 
 
         # calculations of the variations of the coordinates of the Thymio :
-        delta_X = delta_S * np.cos(Thymio.Theta_init + delta_Theta/2) # ou ?((theta_init + delta_Theta)/2)?? savoir lequel est juste 
+        self.v_X = delta_X = delta_S * np.cos(Thymio.Theta_init + delta_Theta/2) #SPEED in X
+        
+         # ou ?((theta_init + delta_Theta)/2)?? savoir lequel est juste 
         # ma version c'est celle du cours en théorie
-        delta_Y = delta_S * np.sin(Thymio.Theta_init + delta_Theta/2)
+        self.v_Y = delta_Y = delta_S * np.sin(Thymio.Theta_init + delta_Theta/2) #SPEED in y
 
         # update of the position (coordinates and angle/orientation) of the Thymio after a time of delta_t  :
     
 
         ##&&&&&& ATTTTEEENTIIIOOONNNNNN
-        self.v_X = Thymio.X_init + delta_X * delta_t #récupérer les valeurs X_init et Y_init de CV
+        self.v_X =  delta_X  #récupérer les valeurs X_init et Y_init de CV
         self.v_Y = Thymio.Y_init + delta_Y * delta_t ######ATTENTIUON C?EST UNE VITESSE !!! pas une position
 
-        self.v_Theta = Thymio.Theta_init + delta_Theta ## revoir calcul --> vitesse anglulaire
+        self.v_Theta = Thymio.Theta_init + delta_Theta * delta_t ## revoir calcul --> vitesse anglulaire
         ##&&&&&& ATTTTEEENTIIIOOONNNNNN
 
         #update du pre_time

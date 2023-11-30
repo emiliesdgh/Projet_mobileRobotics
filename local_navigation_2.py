@@ -1,11 +1,17 @@
-from tdmclient import ClientAsync
+'''from tdmclient import ClientAsync
 client = ClientAsync()
 node = await client.wait_for_node()
-await node.lock()
+await node.lock()'''
+
+#from classes import Thymio
+
+import classes
+
+import numpy as np
 
 test_functions = True
 
-await node.wait_for_variables()
+#aw(node.wait_for_variables())
 
 def motors(l_speed=500, r_speed=500, verbose=False):
     """
@@ -23,9 +29,9 @@ def motors(l_speed=500, r_speed=500, verbose=False):
     }
 
 if test_functions:
-    await node.set_variables(motors(100, 100)) #test with lower speed value
-    await client.sleep(2)
-    await node.set_variables(motors(0, 0))
+    aw(node.set_variables(motors(100, 100))) #test with lower speed value
+    aw(client.sleep(2))
+    aw(node.set_variables(motors(0, 0)))
 
 
 #test 28.11.23 - 16h30
@@ -126,8 +132,8 @@ async def obstacle_avoidance(motor_speed=100, obs_threshold=500, verbose=False):
     return 
 
 if test_functions:
-    await obstacle_avoidance(verbose=True)
-    await node.set_variables(motors(0, 0))
+    aw(obstacle_avoidance(verbose=True))
+    aw(node.set_variables(motors(0, 0)))
 
 
 
