@@ -69,13 +69,14 @@ class Global_Nav :
             path.append(int(self.graph[2][node]))
             node = path[-1]
         path = np.flip(path)
-        path_coord = []
+        path_coord = [[robot.pos_X,robot.pos_Y]]
         a = 0
         for p in path : 
             a = a + 1 
-            if a != np.size(path):
-                i = int(p-1)
-                path_coord.append(cor[i])
+            if a != 1:
+                if a != np.size(path):
+                    i = int(p-1)
+                    path_coord.append(cor[i])
         robot.setPath(path_coord)
         self.path = path 
         self.path_coord = path_coord

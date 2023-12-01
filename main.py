@@ -11,10 +11,13 @@ import global_navigation
 import motion_control
 import local_navigation
 
-client = ClientAsync()
+from vision import *
+from global_visibility import *
+
+""" client = ClientAsync()
 node = aw(client.wait_for_node())
 aw(node.lock())
-aw(node.wait_for_variables())
+aw(node.wait_for_variables()) """
 
 """ test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -52,13 +55,17 @@ while(1) :
     vision.find_goal_pos()
     vision.find_start_pos()
     vision.find_angle(robot)
+    print(robot.goal_X,robot.goal_Y,robot.pos_X,robot.pos_Y)
     vision.find_corners()
     vision.trace_contours()
     vision.compute_dist_mx(robot)
+    print('end vision')
     
     global_nav = Global_Nav()
     global_nav.dijkstra(robot)
     global_nav.extract_path(robot)
+    print('end global')
+    print(robot.path)
 
     """ global_nav = globalNavigation()
     path, visitedNodes = global_nav.A_star(start, goal, test_occupancy_grid) """

@@ -100,3 +100,6 @@ class Thymio :
 
     def getS(self):
         return self.S
+    
+    def setVisionDone(self, vision):
+        self.vision = vision
