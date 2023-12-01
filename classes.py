@@ -3,6 +3,16 @@ import numpy as np
 import time
 from tdmclient import ClientAsync, aw
 
+from tdmclient import ClientAsync, aw
+client = ClientAsync()
+node = aw(client.wait_for_node())
+
+'''from tdmclient import ClientAsync
+client = ClientAsync()
+node = await client.wait_for_node()
+await node.lock()'''
+
+
 """ #import the classes from the other modules
 from local_navigation import LocalNavigation
 from filtering import KalmanFilter """
