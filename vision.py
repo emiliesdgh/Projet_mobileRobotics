@@ -72,7 +72,7 @@ class Vision :
         red[imask] = self.img[imask]
 
         im = cv2.cvtColor(red, cv2.COLOR_BGR2GRAY)
-        ret,self.thresh1 = cv2.threshold(im,2,255,cv2.THRESH_BINARY)
+        ret,self.thresh1 = cv2.threshold(im,2,255,cv2.THRESH_BINARY_INV)
         contours, _ = cv2.findContours( 
             self.thresh1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
         i = 0
@@ -132,7 +132,7 @@ class Vision :
                 y = int(M['m01']/M['m00']) 
                 if len(m)<self.NB_SHAPES:
                     m.append([x,y])
-        th3 = cv2.adaptiveThreshold(thresh2,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+        th3 = cv2.adaptiveThreshold(self.thresh1,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
                                     cv2.THRESH_BINARY,11,2)
         corners = cv2.goodFeaturesToTrack(th3, self.NB_CORNERS, 0.01, 45) #(img, max_nb_corners, quality level, min distance)
         corners = np.int0(corners) 
