@@ -30,10 +30,11 @@ class Thymio :
 
         self.obs_avoided = False
 
+        # Thymio position (coordinates and angle)
         self.pos_X = 0
         self.pos_Y = 0
-
         self.theta = 0
+
         self.vision = 0     #if CV is done or not
 
         self.goal_reached_t=False     #has the robot reached right angle
@@ -41,8 +42,8 @@ class Thymio :
         self.prev_error=0           #for derivative part of PID control
         self.int_error=0            #for integral part of PID control
 
-        self.motor_target_left=0
-        self.motor_target_right=0
+        self.motor_speed_left=0
+        self.motor_speed_right=0
 
         self.path=[]
         self.goal_angle=0 
