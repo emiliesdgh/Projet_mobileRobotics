@@ -4,29 +4,16 @@ from classes import Thymio
 from tdmclient import ClientAsync, aw
 import numpy as np
 
-test_functions = True
-
-def test_the_fct1(Thymio, node, client, test_functions) :
-    if test_functions:
-
-        Thymio.setSpeedRight(100,node)
-        Thymio.setSpeedLeft(100,node)
-        aw(client.sleep(2))
-
-        Thymio.setSpeedRight(0,node)
-        Thymio.setSpeedLeft(0,node)
-
-
 def test_saw_osb(Thymio, node, obs_threshold) :
 
     '''This function verrifies if one of the proximity horiontal sensors
         sees and obstacle within the giving threashold.'''
     
     if any([x>obs_threshold for x in node['prox.horizontal'][:-2]]):
-        Thymio.obs_avoided = False 
+
+        Thymio.obs_avoided = False  # Booleen to state when the obstacle has been avoided or not
         return True
 
-    #Thymio.obs_avoided = True 
     return False
 
 def clockwise(node) :
@@ -52,12 +39,8 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
     param verbose: whether to print status messages or not
     """
 
-    #obs_avoided = False     # Booleen to state when the obstacle has been avoided or not
     clockwise_true = False  # Booleen to state if the Thymio has to contourn on the left or right
-    
-    #Thymio.setSpeedLeft(motor_speed, node)
-    #Thymio.setSpeedRight(motor_speed, node)
-           
+ 
     prev_state = "turning" # Stated of movement of the Thymio
     
     while not Thymio.obs_avoided :     # As long as the obstacle isn't avoided, stay in the while loop 
@@ -90,7 +73,7 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
                     Thymio.setSpeedRight(motor_speed, node)
 
                     prev_state = "forward"
-                    print("\t CLOOOOCCCKKK Clockwise")
+
                     aw(client.sleep(18))
 
                     Thymio.setSpeedLeft(motor_speed, node)
@@ -106,7 +89,7 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
                     Thymio.setSpeedRight(motor_speed-40,node)
 
                     prev_state="turning"
-                    print("\t COUNTEEERRR Counterclockwise")
+
                     aw(client.sleep(18))
 
                     Thymio.setSpeedLeft(-motor_speed,node)
@@ -117,12 +100,3 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
                     Thymio.obs_avoided = True  # obstacle has been avoided, change the state booleen
 
         aw(client.sleep(0.1)) #otherwise, variables would not be updated
-
-    '''if Thymio.obs_avoided :
-        #Thymio.obs_avoided = True
-        Funtion to stop the Thymio's movement after avoiding the obstacle
-        Thymio.setSpeedRight(0,node)
-        Thymio.setSpeedLeft(0,node)'''
-
-
-
