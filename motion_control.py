@@ -61,4 +61,4 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         robot.setSpeedLeft(0,node)
         robot.setPath(robot.path.pop(0))                                  
     else:
-        pass              
+        pass       

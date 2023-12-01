@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+from tdmclient import ClientAsync, aw
 
 from tdmclient import ClientAsync, aw
 client = ClientAsync()
