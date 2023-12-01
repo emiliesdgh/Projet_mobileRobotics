@@ -14,10 +14,10 @@ import local_navigation
 from vision import *
 from global_visibility import *
 
-""" client = ClientAsync()
+client = ClientAsync()
 node = aw(client.wait_for_node())
 aw(node.lock())
-aw(node.wait_for_variables()) """
+aw(node.wait_for_variables())
 
 """ test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -37,14 +37,13 @@ aw(node.wait_for_variables()) """
 start = (0,0)
 goal = (10,15)"""
 
-
-while(1) :
-
-    if test_saw_osb(Thymio, node, obs_threshold):
-        obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500):
+"""  
+ if local_navigation.test_saw_osb(Thymio, node,500):
+        local_navigation.obstacle_avoidance(Thymio, node, client)
     else :
-        #le reste
 
+ """
+while(1) :
 
 
     robot = Thymio()
@@ -66,6 +65,13 @@ while(1) :
     global_nav.extract_path(robot)
     print('end global')
     print(robot.path)
+
+
+
+    if not robot.goal_reached_t:
+        motion_control.turn(robot.theta,robot,node)
+    if robot.goal_reached_t and not robot.goal_reached_f:
+        motion_control.go_to_next_point(0,robot.path[0],0,robot,node)
 
     """ global_nav = globalNavigation()
     path, visitedNodes = global_nav.A_star(start, goal, test_occupancy_grid) """
