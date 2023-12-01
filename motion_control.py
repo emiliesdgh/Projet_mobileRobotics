@@ -2,14 +2,14 @@ from classes import Thymio
 import numpy as np
 
 #Define constants
-ANGLE_ERROR_TRESH = 0.02
-DIST_ERROR_TRESH = 0.1      #find this value
-DIST_TRESH=2                #find this value
-MAX_SPEED=150               #find this value
-KP=20                     #find this value
-KI=1.5                    #find this value
-KD=2.5                   #find this value
-K=20                      #find this values
+ANGLE_ERROR_TRESH = 0.1
+DIST_ERROR_TRESH = 0.1      
+DIST_TRESH=20                
+MAX_SPEED=150               
+KP=200                  
+KI=15                    
+KD=25                   
+K=20                      
 
 
 def PIDcontrol(error,robot):
@@ -21,10 +21,11 @@ def PIDcontrol(error,robot):
         return p_speed+i_speed+d_speed
 
 def turn(current_angle, robot, node):
-    robot.goal_reached = False
+    robot.goal_reached_t = False
     error=robot.goal_angle-current_angle
     if (abs(error)<=ANGLE_ERROR_TRESH):
-        robot.goal_reached = True
+        robot.goal_reached_t = True
+        robot.goal_reached_f = False
         robot.prev_error = 0
         robot.int_error = 0
         robot.setSpeedRight(0,node)
@@ -43,7 +44,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
     error=np.sqrt(distance)
     if (obstacle==0 and abs(distance)>DIST_TRESH**2):
         rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
-        leftspeed = min(MAX_SPEED, max(-MAX_SPEED, MAX_SPEED-rspeed))
+        leftspeed = int(min(MAX_SPEED, max(-MAX_SPEED, MAX_SPEED-rspeed)))
         rightspeed = min(MAX_SPEED, max(-MAX_SPEED, MAX_SPEED+rspeed))
         robot.setSpeedRight(MAX_SPEED,node)
         robot.setSpeedLeft(MAX_SPEED,node)
@@ -55,7 +56,8 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         robot.setSpeedRight(rightspeed,node)
         robot.setSpeedLeft(leftspeed,node)
     elif (obstacle==0 and abs(distance)<=DIST_ERROR_TRESH**2):
-        robot.goal_reached = True
+        robot.goal_reached_f = True
+        robot.goal_reached_t = False
         robot.prev_error = 0
         robot.int_error = 0
         robot.setSpeedRight(0,node)
