@@ -28,6 +28,8 @@ class Thymio :
 
     def __init__ (self) :
 
+        self.obs_avoided = False
+
         self.pos_X = 0
         self.pos_Y = 0
 
