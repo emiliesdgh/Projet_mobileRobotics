@@ -48,6 +48,7 @@ while(1) :
 
     robot = Thymio()
 
+# Code for Vision + Visibility global nav 
     vision = Vision()
     vision.capture_image()
     print('image captured')
@@ -66,6 +67,15 @@ while(1) :
     print('end global')
     print(robot.path)
 
+# Code for vision + Astar (to be completed by Kyke)
+    """ vision = Vision()
+    vision.capture_image()
+    vision.find_goal_pos()
+    vision.find_start_pos()
+    vision.find_angle(robot)
+    vision.return_occupancy_matrix(robot)
+    + global Astar part 
+ """
 
 
     if not robot.goal_reached_t:

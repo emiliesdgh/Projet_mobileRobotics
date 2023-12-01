@@ -49,6 +49,8 @@ class Vision :
         self.y_front = 0
         self.y_back = 0
         self.y_goal = 0
+        self.width_resized = 19
+        self.height_resized = 15
         self.cor = []
         self.cornerss = []
         self.m_cor = []
@@ -257,3 +259,10 @@ class Vision :
         robot.setS(s)
         robot.setVisionDone(True)
 
+    def return_occupancy_matrix(self,robot):
+        dim = (self.width_resized, self.height_resized)
+        img = cv2.resize(self.img, dim, interpolation = cv2.INTER_AREA)
+        rszd = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        mtx = np.array(rszd)
+        mx = (mtx < 20).astype(int)
+        robot.occupancy_matrix = mx
