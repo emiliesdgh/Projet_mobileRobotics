@@ -1,15 +1,19 @@
+from tdmclient import ClientAsync, aw
 import matplotlib.pyplot as plt
 import numpy as np
-import time
 
 #import the classes from the other modules
 #from local_navigation import LocalNavigation
 #from filtering import Filtering
 from classes import Thymio
 from filtering import KalmanFilter
+import global_navigation
+import motion_control
 
-from vision import *
-from global_visibility import *
+client = ClientAsync()
+node = aw(client.wait_for_node())
+aw(node.lock())
+aw(node.wait_for_variables())
 
 """ test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -26,11 +30,11 @@ from global_visibility import *
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-goal = (0,0)
-start = (10,15)
- """
-while(1) :
+start = (0,0)
+goal = (10,15)"""
 
+
+while(1) :
     robot = Thymio()
 
     vision = Vision()

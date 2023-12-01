@@ -3,9 +3,9 @@ import numpy as np
 import time
 from tdmclient import ClientAsync, aw
 
-from tdmclient import ClientAsync, aw
+""" from tdmclient import ClientAsync, aw
 client = ClientAsync()
-node = aw(client.wait_for_node())
+node = aw(client.wait_for_node()) """
 
 '''from tdmclient import ClientAsync
 client = ClientAsync()
@@ -34,7 +34,8 @@ class Thymio :
         self.theta = 0
         self.vision = 0     #if CV is done or not
 
-        self.goal_reached=False     #has the robot reached the next point
+        self.goal_reached_t=False     #has the robot reached right angle
+        self.goal_reached_f=False   #has the robot reached the next point
         self.prev_error=0           #for derivative part of PID control
         self.int_error=0            #for integral part of PID control
 

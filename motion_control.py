@@ -6,10 +6,10 @@ ANGLE_ERROR_TRESH = 0.02
 DIST_ERROR_TRESH = 0.1      #find this value
 DIST_TRESH=2                #find this value
 MAX_SPEED=150               #find this value
-KP=200                      #find this value
-KI=10                       #find this value
-KD=5                        #find this value
-K=200                       #find this values
+KP=20                     #find this value
+KI=1.5                    #find this value
+KD=2.5                   #find this value
+K=20                      #find this values
 
 
 def PIDcontrol(error,robot):
@@ -20,7 +20,8 @@ def PIDcontrol(error,robot):
         robot.prev_error = error
         return p_speed+i_speed+d_speed
 
-def turn(current_angle, robot, node):       #might need to adapt speed units   NEED: variable for current angle from odometry
+def turn(current_angle, robot, node):
+    robot.goal_reached = False
     error=robot.goal_angle-current_angle
     if (abs(error)<=ANGLE_ERROR_TRESH):
         robot.goal_reached = True
@@ -35,7 +36,7 @@ def turn(current_angle, robot, node):       #might need to adapt speed units   N
             
 
 def go_to_next_point(current_angle, current_position, obstacle, robot, node): 
-    robot.goal_reached = False    #not sure this is useful anymore
+    robot.goal_reached_f = False    #not sure this is useful anymore
     deltax= current_position[0]-robot.path[1][0]
     deltay= current_position[1]-robot.path[1][1]
     distance=deltax**2+deltay**2
