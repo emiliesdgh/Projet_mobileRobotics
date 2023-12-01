@@ -58,6 +58,7 @@ class Vision :
     def capture_image(self): 
         cap = cv2.VideoCapture(1)
         ret, self.frame = cap.read()
+        ret, self.frame = cap.read()
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))
@@ -72,8 +73,17 @@ class Vision :
 
         im = cv2.cvtColor(red, cv2.COLOR_BGR2GRAY)
         ret,self.thresh1 = cv2.threshold(im,2,255,cv2.THRESH_BINARY)
-        (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(self.thresh1)
-        [self.x_goal,self.y_goal] = maxLoc
+        contours, _ = cv2.findContours( 
+            self.thresh1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
+        i = 0
+        for contour in contours: 
+            if i == 0: 
+                i = 1
+                continue
+            M = cv2.moments(contour) 
+            if M['m00'] != 0.0: 
+                self.x_goal = int(M['m10']/M['m00']) 
+                self.y_goal = int(M['m01']/M['m00']) 
 
     def find_start_pos(self):
         hsv = cv2.cvtColor(self.img, cv2.COLOR_RGB2HSV)
@@ -240,7 +250,7 @@ class Vision :
             line = np.transpose(np.array(draw.line(self.x_goal,self.y_goal,self.cor[i-1][0],self.cor[i-1][1])))
             data = self.thresh1[line[:, 1], line[:, 0]]
             if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
-                dist_mx[i][s-1] = np.sqrt(np.power((self.cor[i-1][0]-self.x_goal),2)+np.power((self.cor[i-1][1]-self.y_g),2))
+                dist_mx[i][s-1] = np.sqrt(np.power((self.cor[i-1][0]-self.x_goal),2)+np.power((self.cor[i-1][1]-self.y_goal),2))
         self.dist_mx = dist_mx
         robot.setDistMx(dist_mx)
         robot.setCor(self.cor)

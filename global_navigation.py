@@ -38,7 +38,7 @@ class globalNavigation:
     
     # Implementation of A* algorithm
 
-    def reconstruct_path(self, cameFrom, current, robot):
+    def reconstruct_path(self, cameFrom, current):
         """
         Recurrently reconstructs the path from start node to the current node
         :param cameFrom: map (dictionary) containing for each node n the node immediately 
@@ -52,10 +52,10 @@ class globalNavigation:
             # Add where the current node came from to the start of the list
             total_path.insert(0, cameFrom[current]) 
             current=cameFrom[current]
-        robot.setPath=total_path
+        return total_path
         
 
-    def A_Star(self, start, goal, occupancy_grid, movement_type="4N"):
+    def A_Star(self,robot,start, goal, occupancy_grid, movement_type="4N"):
         """
         A* for 2D occupancy grid. Finds a path from start to goal.
         h is the heuristic function. h(n) estimates the cost to reach goal from node n.
@@ -136,7 +136,8 @@ class globalNavigation:
             #If the goal is reached, reconstruct and return the obtained path
             if current == goal:
                 # return in form of array in (x,y) format for better handling
-                return np.array(self.reconstruct_path(cameFrom, current))[:, [1, 0]], np.array(closedSet)[:, [1, 0]]
+                robot.setPath(np.array(self.reconstruct_path(cameFrom, current))[:, [1, 0]])
+                return
 
             openSet.remove(current)
             closedSet.append(current)
