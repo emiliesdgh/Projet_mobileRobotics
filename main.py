@@ -1,15 +1,18 @@
+from tdmclient import ClientAsync, aw
 import matplotlib.pyplot as plt
 import numpy as np
-import time
 
 #import the classes from the other modules
-from local_navigation import LocalNavigation
 #from filtering import Filtering
 from classes import Thymio
 from filtering import KalmanFilter
+import global_navigation
+import motion_control
 
-from vision import *
-from global_visibility import *
+client = ClientAsync()
+node = aw(client.wait_for_node())
+aw(node.lock())
+aw(node.wait_for_variables())
 
 test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -26,22 +29,11 @@ test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-goal = (0,0)
-start = (10,15)
+start = (0,0)
+goal = (10,15)
 
 
 while(1) :
-
-    a = 0
-    motor_left_speed = 0
-    motor_right_speed = 0
-    pre_time = 0
-    X_init = 0
-    Y_init = 0
-    theta_init = 0
-
-    #print(Thymio)
-
     robot = Thymio()
 
 #     vision = Vision()
@@ -57,8 +49,10 @@ while(1) :
 #     global_nav.dijkstra(robot)
 #     global_nav.extract_path(robot)
 
-      global_nav = globalNavigation()
-      path, visitedNodes = global_nav.A_star(start, goal, test_occupancy_grid)
+   """  global_nav = global_navigation.globalNavigation()
+    global_nav.A_Star(robot,start, goal, test_occupancy_grid)
+ """
+    motion_control.go_to_next_point(0,robot.path[0],0,robot,node)
       
 
 
