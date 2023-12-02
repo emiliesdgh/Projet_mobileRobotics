@@ -45,7 +45,7 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
     
     while not Thymio.obs_avoided :     # As long as the obstacle isn't avoided, stay in the while loop 
     
-        if test_saw_osb(Thymio, node, obs_threshold) :
+        if test_saw_osb(Thymio, node, obs_threshold) : #if test maybe not necessary with booleen Thymio.obs_avoided ???
             
             if prev_state == "turning": # little rotation on it's own to then do the contourning
   
