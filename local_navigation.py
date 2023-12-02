@@ -72,7 +72,7 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
                     Thymio.setSpeedLeft(motor_speed-40, node)
                     Thymio.setSpeedRight(motor_speed, node)
 
-                    prev_state = "forward"
+                    prev_state = "turning"
 
                     aw(client.sleep(18))
 
