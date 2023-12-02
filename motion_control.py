@@ -42,20 +42,20 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
     deltay= current_position[1]-robot.path[1][1]
     distance=deltax**2+deltay**2
     error=np.sqrt(distance)
-    if (obstacle==0 and abs(distance)>DIST_TRESH**2):
+    if (obstacle==False and abs(distance)>DIST_TRESH**2):
         rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
         leftspeed = int(min(MAX_SPEED, max(-MAX_SPEED, MAX_SPEED-rspeed)))
         rightspeed = min(MAX_SPEED, max(-MAX_SPEED, MAX_SPEED+rspeed))
         robot.setSpeedRight(MAX_SPEED,node)
         robot.setSpeedLeft(MAX_SPEED,node)
-    elif (obstacle==0 and abs(distance)<DIST_TRESH**2):
+    elif (obstacle==False and abs(distance)<DIST_TRESH**2):
         fspeed = K*MAX_SPEED*error
         rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
         leftspeed = min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed))
         rightspeed = min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed))
         robot.setSpeedRight(rightspeed,node)
         robot.setSpeedLeft(leftspeed,node)
-    elif (obstacle==0 and abs(distance)<=DIST_ERROR_TRESH**2):
+    elif (obstacle==False and abs(distance)<=DIST_ERROR_TRESH**2):
         robot.goal_reached_f = True
         robot.goal_reached_t = False
         robot.prev_error = 0

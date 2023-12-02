@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #import the classes from the other modules
-#from local_navigation import LocalNavigation
-#from filtering import Filtering
 from classes import Thymio
 from filtering import KalmanFilter
-import global_navigation
+from global_navigation import globalNavigation
 import motion_control
 import local_navigation
 
@@ -19,7 +17,7 @@ node = aw(client.wait_for_node())
 aw(node.lock())
 aw(node.wait_for_variables())
 
-""" test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -35,20 +33,42 @@ aw(node.wait_for_variables())
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 start = (0,0)
-goal = (10,15)"""
+goal = (10,15)
 
-"""  
- if local_navigation.test_saw_osb(Thymio, node,500):
-        local_navigation.obstacle_avoidance(Thymio, node, client)
-    else :
+Thym=Thymio() # Set Thym as class Thymio as initialization before the while
 
- """
 while(1) :
 
+    if local_navigation.test_saw_osb(Thym, node,500):   # Check if an obstacle has been detected
+        local_navigation.obstacle_avoidance(Thym, node, client)     # Execute obstacle avoidance
 
-    robot = Thymio()
+    # Set test parameters to simulate a path (for testing motion without vision):
+    
+    globalNavigation().A_Star(Thym,start,goal,test_occupancy_grid)  # Compute the Astar based on a fake occupancy grid and set the Thym.path variable
+    current_angle=np.linspace(0,2*np.pi,720)    # Set a fake current angle
+    Thym.goal_angle=0   # Set a fake goal angle
+    test_functions=1
+
+    # Move the thymio with obstacle avoidance implemented:
+
+    for i in range(6):
+        for angle in current_angle:
+            if not Thym.goal_reached_t:
+                motion_control.turn(angle,Thym,node)
+            if Thym.goal_reached_t and not Thym.goal_reached_f:
+                # The following line sends the local_navigation.test_saw_obs to be able to
+                # exit the motion_control.go_to_next_point and move on in the while loop
+                
+                motion_control.go_to_next_point(0,Thym.path[i],local_navigation.test_saw_osb(Thym, node, 500),Thym,node)
+
+
+
+
+    # robot = Thymio()
+
 
 # Code for Vision + Visibility global nav 
+"""     
     vision = Vision()
     vision.capture_image()
     print('image captured')
@@ -66,9 +86,10 @@ while(1) :
     global_nav.extract_path(robot)
     print('end global')
     print(robot.path)
-
+ """
 # Code for vision + Astar (to be completed by Kyke)
-    """ vision = Vision()
+"""
+      vision = Vision()
     vision.capture_image()
     vision.find_goal_pos()
     vision.find_start_pos()
@@ -78,12 +99,13 @@ while(1) :
  """
 
 
-    if not robot.goal_reached_t:
+"""     if not robot.goal_reached_t:
         motion_control.turn(robot.theta,robot,node)
     if robot.goal_reached_t and not robot.goal_reached_f:
-        motion_control.go_to_next_point(0,robot.path[0],0,robot,node)
+        motion_control.go_to_next_point(0,robot.path[0],0,robot,node) """
 
-    """ global_nav = globalNavigation()
+""" 
+    global_nav = globalNavigation()
     path, visitedNodes = global_nav.A_star(start, goal, test_occupancy_grid) """
 
 

@@ -134,6 +134,7 @@ class globalNavigation:
             del fScore_openSet
 
             #If the goal is reached, reconstruct and return the obtained path
+            
             if current == goal:
                 # return in form of array in (x,y) format for better handling
                 robot.setPath(np.array(self.reconstruct_path(cameFrom, current))[:, [1, 0]])
