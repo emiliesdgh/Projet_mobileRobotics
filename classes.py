@@ -55,6 +55,8 @@ class Thymio :
         self.cor=[]
         self.S=0
 
+        self.occupancy_matrix = []
+
     def setPositions (self,x,y,x_g,y_g,theta) :
         
         self.pos_X = x
