@@ -47,7 +47,9 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         if (obstacle==False and abs(deltax)>=DIST_ERROR_TRESH and abs(deltay)>=DIST_ERROR_TRESH):
             print('first loop')
             fspeed = K*MAX_SPEED*error
-            rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
+            print('fspeed=', fspeed)
+            rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)[0]
+            print('rspeed=', rspeed)
             leftspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed)))
             rightspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed)))
             robot.setSpeedRight(rightspeed,node)
