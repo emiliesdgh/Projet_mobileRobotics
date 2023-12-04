@@ -7,6 +7,7 @@ from matplotlib import colors
 import math
 from skimage import draw
 from classes import Thymio
+from IPython.display import clear_output
 
 class Vision :
     
@@ -23,8 +24,8 @@ class Vision :
         self.BLACK_THRESHOLD = 40
         self.LOW_RED = (110,50,50)
         self.HIGH_RED = (130,255,255)
-        self.LOW_BLUE = (110,50,50)
-        self.HIGH_BLUE = (130,255,255)
+        self.LOW_BLUE = (100,150,0)
+        self.HIGH_BLUE = (140,255,255)
         self.LOW_GREEN = (55,42,0)
         self.HIGH_GREEN = (84,255,255)
         self.redpx = (255,0,0)
@@ -57,9 +58,8 @@ class Vision :
         self.path = []
         self.dist_mx = []
 
-    def capture_image(self): 
-        cap = cv2.VideoCapture(1)
-        ret, self.frame = cap.read()
+    def capture_image(self,cap): 
+        #ret, self.frame = cap.read()
         ret, self.frame = cap.read()
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
