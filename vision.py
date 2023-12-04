@@ -34,14 +34,14 @@ class Vision :
         self.line_width = 2
         self.NB_SHAPES = 3
         self.NB_CORNERS = 11
-        self.d_wide_cor = 45
+        self.d_wide_cor = 55
         self.mean_value_along_line = 145
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
         self.width_resized = 19
         self.height_resized = 15
-        self.kid_threshold = 150
+        self.kid_threshold = 200
 
         #Variables
         self.frame = 0 
@@ -90,14 +90,18 @@ class Vision :
                 self.x_goal = int(M['m10']/M['m00']) 
                 self.y_goal = int(M['m01']/M['m00']) 
 
-    def find_start_pos(self):
+    def find_start_pos(self,robot,a):
         hsv = cv2.cvtColor(self.img, cv2.COLOR_RGB2HSV)
         mask = cv2.inRange(hsv, self.LOW_GREEN, self.HIGH_GREEN)
         green = cv2.bitwise_and(self.frame,self.frame, mask = mask)
         gray = cv2.cvtColor(green, cv2.COLOR_BGR2GRAY) 
         _, self.thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY) 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(self.thresh1)
-        [self.x_back,self.y_back] = maxLoc
+        [x_back,y_back] = maxLoc
+        if ((abs(self.x_back - x_back) > self.kid_threshold) or (abs(self.y_back - y_back) > self.kid_threshold)) & (a !=1):
+            print('kidnap')
+            robot.kidnap = True
+        [self.x_back,self.y_back] = [x_back,y_back]
 
     def find_angle(self,robot):
         hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
@@ -118,11 +122,10 @@ class Vision :
             if self.x_front <= self.x_back : 
                 self.teta = np.pi + np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
         if ((self.x_back == 0) & (self.y_back == 0)):
-            robot.setVisionDone(False)
-        elif (abs(robot.X_pos - self.x_back) > self.kid_threshold) or (abs(robot.Y_pos - self.y_back) > self.kid_threshold) : 
-            robot.kidnap = True 
+            print('green point zero')
             robot.setVisionDone(False)
         else :
+            print('normal')
             robot.setPositions(self.x_back,self.y_back,self.x_goal,self.y_goal,self.teta)
             robot.setVisionDone(True)
 

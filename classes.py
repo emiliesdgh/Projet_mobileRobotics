@@ -75,11 +75,11 @@ class Thymio :
         return self.theta
 
     def setSpeedLeft(self,speed,node):
-        self.motor_target_left=speed
+        self.motor_speed_left=speed
         aw(node.set_variables({"motor.left.target": [speed]}))
     
     def setSpeedRight(self,speed,node):
-        self.motor_target_right=speed
+        self.motor_speed_right=speed
         aw(node.set_variables({"motor.right.target": [speed]}))
 
     def setAngle(self):
