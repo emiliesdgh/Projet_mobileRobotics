@@ -7,6 +7,7 @@ from matplotlib import colors
 import math
 from skimage import draw
 from classes import Thymio
+from IPython.display import clear_output
 
 class Vision :
     
@@ -23,8 +24,8 @@ class Vision :
         self.BLACK_THRESHOLD = 40
         self.LOW_RED = (110,50,50)
         self.HIGH_RED = (130,255,255)
-        self.LOW_BLUE = (104, 42, 0)
-        self.HIGH_BLUE = (105, 250, 250)
+        self.LOW_BLUE = (100,150,0)
+        self.HIGH_BLUE = (140,255,255)
         self.LOW_GREEN = (55,42,0)
         self.HIGH_GREEN = (84,255,255)
         self.redpx = (255,0,0)
@@ -34,10 +35,12 @@ class Vision :
         self.NB_SHAPES = 3
         self.NB_CORNERS = 11
         self.d_wide_cor = 45
-        self.mean_value_along_line = 125
+        self.mean_value_along_line = 145
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
+        self.width_resized = 19
+        self.height_resized = 15
 
         #Variables
         self.frame = 0 
@@ -49,18 +52,17 @@ class Vision :
         self.y_front = 0
         self.y_back = 0
         self.y_goal = 0
-        self.width_resized = 19
-        self.height_resized = 15
         self.cor = []
-        self.cornerss = []
+        self.corners = []
         self.m_cor = []
         self.path = []
         self.dist_mx = []
 
-    def capture_image(self): 
-        cap = cv2.VideoCapture(1)
+    def capture_image(self,cap): 
         ret, self.frame = cap.read()
         ret, self.frame = cap.read()
+        # plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
+        # plt.show()
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))
@@ -205,8 +207,9 @@ class Vision :
                     if self.m_cor[i] == self.m_cor[j]:
                         line = np.transpose(np.array(draw.line(self.cornerss[i][0], self.cornerss[i][1], self.cornerss[j][0], self.cornerss[j][1])))
                         data = self.thresh1[line[:, 1], line[:, 0]]
-                        if np.mean(data) > self.mean_value_along_line:
-                            cv2.line(self.thresh1, self.cornerss[i], self.cornerss[j], self.bluepx, 4)
+                        if np.size(np.where(abs(np.diff(data))>0)[0]) <= 2:
+                            if np.mean(data) > self.mean_value_along_line:
+                                cv2.line(self.thresh1, self.cornerss[i], self.cornerss[j], self.bluepx, 4)
 
     def compute_dist_mx(self,robot):
         s = int(((np.size(self.cor))/2)+2) 

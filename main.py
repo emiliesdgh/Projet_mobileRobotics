@@ -1,6 +1,7 @@
 from tdmclient import ClientAsync, aw
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 #import the classes from the other modules
 from classes import Thymio
@@ -35,11 +36,13 @@ test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 start = (0,0)
 goal = (10,15)
 
-Thym=Thymio() # Set Thym as class Thymio as initialization before the while
+robot=Thymio() # Set Thym as class Thymio as initialization before the while
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
+a = 0
 while(1) :
-
-    if local_navigation.test_saw_osb(Thym, node,500):   # Check if an obstacle has been detected
+    a = a + 1
+    """ if local_navigation.test_saw_osb(Thym, node,500):   # Check if an obstacle has been detected
         local_navigation.obstacle_avoidance(Thym, node, client)     # Execute obstacle avoidance
 
     # Set test parameters to simulate a path (for testing motion without vision):
@@ -59,12 +62,33 @@ while(1) :
                 # The following line sends the local_navigation.test_saw_obs to be able to
                 # exit the motion_control.go_to_next_point and move on in the while loop
                 
-                motion_control.go_to_next_point(0,Thym.path[i],local_navigation.test_saw_osb(Thym, node, 500),Thym,node)
+                motion_control.go_to_next_point(0,Thym.path[i],local_navigation.test_saw_osb(Thym, node, 500),Thym,node) """
 
+    vision = Vision()
+    vision.capture_image(cap)
+    vision.find_goal_pos()
+    vision.find_start_pos()
+    vision.find_angle(robot)
+    print(np.degrees(robot.theta),np.degrees(robot.goal_angle))
+    print(robot.path)
+    time.sleep(0.2)
+    if (a == 1):
+        print(robot.goal_X,robot.goal_Y,robot.pos_X,robot.pos_Y)
+        vision.find_corners()
+        vision.trace_contours()
+        vision.compute_dist_mx(robot)
+        global_nav = Global_Nav()
+        global_nav.dijkstra(robot)
+        global_nav.extract_path(robot)
+        print('end global')
+        print(robot.path)
 
+    print('end vision')
 
-
-    # robot = Thymio()
+    if not robot.goal_reached_t:
+        motion_control.turn(robot.theta,robot,node)
+    if robot.goal_reached_t and not robot.goal_reached_f:
+        motion_control.go_to_next_point(robot.theta,[robot.pos_X,robot.pos_Y],0,robot,node)
 
 
 # Code for Vision + Visibility global nav 
@@ -115,7 +139,3 @@ while(1) :
 
 
 
-
-#class Main :
-
-   # def __init__() :

@@ -81,9 +81,8 @@ class Thymio :
         self.motor_target_right=speed
         aw(node.set_variables({"motor.right.target": [speed]}))
 
-    def setPath(self,path):
-        self.path=path
-        self.goal_angle=np.mod(np.arctan2(-(self.path[1][1] - self.path[0][1]), self.path[1][0] - self.path[0][0]), 2*np.pi)
+    def setAngle(self):
+        self.goal_angle=np.mod(np.arctan2(-(self.path[1][1] - self.pos_Y), self.path[1][0] - self.pos_X), 2*np.pi)
     
     def setDistMx(self,dist):
         self.dist_mx=dist
