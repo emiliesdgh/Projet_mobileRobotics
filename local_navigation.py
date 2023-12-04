@@ -22,10 +22,8 @@ def clockwise(node) :
         therefore, the Thymio will contourn it accordingly.'''
 
     prox = list(node["prox.horizontal"]) + [0]
-    print(prox[1])
-    print(prox[3])
     if prox[1] > prox[3] :
-        return True
+        return True # returns True if the obstacle is closer to the sensor [1] rather than the sensor [3]
     
     return False
 
@@ -45,7 +43,7 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
     
     while not Thymio.obs_avoided :     # As long as the obstacle isn't avoided, stay in the while loop 
     
-        if test_saw_osb(Thymio, node, obs_threshold, verbose=False) :
+        if test_saw_osb(Thymio, node, obs_threshold) : #if test maybe not necessary with booleen Thymio.obs_avoided ??? non, necessary condition because otherwise il tourne pas sur lui  meme
             
             if prev_state == "turning": # little rotation on it's own to then do the contourning
   
@@ -72,7 +70,7 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500)
                     Thymio.setSpeedLeft(motor_speed-40, node)
                     Thymio.setSpeedRight(motor_speed, node)
 
-                    prev_state = "forward"
+                    prev_state = "turning"
 
                     aw(client.sleep(18))
 
