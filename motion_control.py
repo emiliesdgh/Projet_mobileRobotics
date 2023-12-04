@@ -4,10 +4,10 @@ import numpy as np
 #Define constants
 ANGLE_ERROR_TRESH = 0.01
 DIST_ERROR_TRESH = 5               
-MAX_SPEED=50               
+MAX_SPEED=100               
 KP=200                 
-KI=7                  
-KD=5                 
+KI=10                  
+KD=10                 
 K=20                      
 
 
