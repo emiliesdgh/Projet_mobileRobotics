@@ -2,13 +2,13 @@ from classes import Thymio
 import numpy as np
 
 #Define constants
-ANGLE_ERROR_TRESH = 0.01
+ANGLE_ERROR_TRESH = 0.1
 DIST_ERROR_TRESH = 5               
-MAX_SPEED=100               
+MAX_SPEED=50               
 KP=200                 
 KI=10                  
 KD=10                 
-K=20                      
+K=0.1                    
 
 
 def PIDcontrol(error,robot):
@@ -21,7 +21,7 @@ def PIDcontrol(error,robot):
 
 def turn(current_angle, robot, node):
     robot.goal_reached_t = False
-    error=robot.goal_angle-current_angle
+    error=robot.goal_angle-robot.theta
     if (abs(error)<=ANGLE_ERROR_TRESH):
         robot.goal_reached_t = True
         robot.goal_reached_f = False
@@ -37,7 +37,7 @@ def turn(current_angle, robot, node):
             
 
 def go_to_next_point(current_angle, current_position, obstacle, robot, node): 
-    if len(robot.path)!= 1:
+    if len(robot.path) > 1:
         robot.goal_reached_f = False    
         deltax= current_position[0]-robot.path[1][0]
         deltay= current_position[1]-robot.path[1][1]
@@ -52,6 +52,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             rightspeed = min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed))
             robot.setSpeedRight(rightspeed,node)
             robot.setSpeedLeft(leftspeed,node)
+            robot.setAngle()
         else:
             print('second loop')
             robot.goal_reached_f = True

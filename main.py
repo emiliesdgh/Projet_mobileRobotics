@@ -36,7 +36,7 @@ start = (0,0)
 goal = (10,15)
 
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
 a = 0
 while(1) :
@@ -68,7 +68,8 @@ while(1) :
     vision.find_goal_pos()
     vision.find_start_pos()
     vision.find_angle(robot)
-    print(robot.theta,robot.goal_angle)
+    print(np.degrees(robot.theta),np.degrees(robot.goal_angle))
+    print(robot.path)
     if (a == 1):
         print(robot.goal_X,robot.goal_Y,robot.pos_X,robot.pos_Y)
         vision.find_corners()
@@ -79,6 +80,7 @@ while(1) :
         global_nav.extract_path(robot)
         print('end global')
         print(robot.path)
+
     print('end vision')
 
     if not robot.goal_reached_t:

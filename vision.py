@@ -35,7 +35,7 @@ class Vision :
         self.NB_SHAPES = 3
         self.NB_CORNERS = 11
         self.d_wide_cor = 45
-        self.mean_value_along_line = 125
+        self.mean_value_along_line = 145
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
@@ -61,8 +61,6 @@ class Vision :
     def capture_image(self,cap): 
         ret, self.frame = cap.read()
         ret, self.frame = cap.read()
-        # plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
-        # plt.show()
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))
@@ -207,8 +205,9 @@ class Vision :
                     if self.m_cor[i] == self.m_cor[j]:
                         line = np.transpose(np.array(draw.line(self.cornerss[i][0], self.cornerss[i][1], self.cornerss[j][0], self.cornerss[j][1])))
                         data = self.thresh1[line[:, 1], line[:, 0]]
-                        if np.mean(data) > self.mean_value_along_line:
-                            cv2.line(self.thresh1, self.cornerss[i], self.cornerss[j], self.bluepx, 4)
+                        if np.size(np.where(abs(np.diff(data))>0)[0]) <= 2:
+                            if np.mean(data) > self.mean_value_along_line:
+                                cv2.line(self.thresh1, self.cornerss[i], self.cornerss[j], self.bluepx, 4)
 
     def compute_dist_mx(self,robot):
         s = int(((np.size(self.cor))/2)+2) 
