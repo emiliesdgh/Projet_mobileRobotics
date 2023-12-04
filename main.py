@@ -69,7 +69,7 @@ while(1) :
     vision.find_goal_pos()
     vision.find_start_pos()
     vision.find_angle(robot)
-    print(np.degrees(robot.theta),np.degrees(robot.goal_angle))
+
     print(robot.path)
     time.sleep(0.2)
     if (a == 1):
@@ -86,14 +86,16 @@ while(1) :
     print('end vision')
 
     KF = KalmanFilter()
-    robot.vision = True
-    KF.odometry_update(robot)
+    
+    #KF.odometry_update(robot)
     KF.filter_kalman(robot)
+    #print(np.degrees(KF.X_est[4][0]),(np.degrees(robot.goal_angle)))
+    print(KF.X_est)
+
     if not robot.goal_reached_t:
-        motion_control.turn(KF.X_est[4],robot,node)
+        motion_control.turn(KF.X_est[4][0],robot,node)
     if robot.goal_reached_t and not robot.goal_reached_f:
-        print(KF.X_est[0],KF.X_est[2])
-        motion_control.go_to_next_point(KF.X_est[4],[KF.X_est[0],KF.X_est[2]],0,robot,node)
+        motion_control.go_to_next_point(KF.X_est[4][0],[KF.X_est[0][0],KF.X_est[2][0]],0,robot,node)
 
 
 # Code for Vision + Visibility global nav 

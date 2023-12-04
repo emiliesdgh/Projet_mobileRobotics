@@ -21,7 +21,7 @@ def PIDcontrol(error,robot):
 
 def turn(current_angle, robot, node):
     robot.goal_reached_t = False
-    error=robot.goal_angle-robot.theta
+    error=robot.goal_angle-current_angle
     if (abs(error)<=ANGLE_ERROR_TRESH):
         robot.goal_reached_t = True
         robot.goal_reached_f = False
@@ -48,7 +48,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             print('first loop')
             fspeed = K*MAX_SPEED*error
             print('fspeed=', fspeed)
-            rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)[0]
+            rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
             print('rspeed=', rspeed)
             leftspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed)))
             rightspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed)))

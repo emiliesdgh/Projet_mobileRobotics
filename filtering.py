@@ -28,8 +28,6 @@ class KalmanFilter :
         self.v_Y = 0
         self.v_Theta = 0 
 
-   
-
         self.Ts = 0.1
 
         self.P_est = np.eye(6)
@@ -63,6 +61,7 @@ class KalmanFilter :
         
         if (Thymio.vision) : # If we have the Computer Vision and Odometry
 
+            self.odometry_update(Thymio)
             y = [[Thymio.pos_X],[self.v_X],[Thymio.pos_Y],[self.v_Y],[Thymio.theta],[self.v_Theta]] 
             # -> x, y, theta : values measured by the CV 
             # -> v_x, v_y, v_theta : velocities from Odometry
@@ -81,6 +80,7 @@ class KalmanFilter :
 
         else : # if we only have the Odometry
 
+            self.odometry_update(Thymio)
             y = [[self.v_X],[self.v_Y],[self.v_Theta]]
 
             H = [[0, 1, 0, 0, 0, 0],
@@ -91,15 +91,23 @@ class KalmanFilter :
                  [0, 6.48, 0],
                  [0, 0, 0.615]]
             
+        print("y :")
+        print(y)
         i = y - np.dot(H, X_estimation)
-        print(P_estimation)
+        #print(P_estimation)
         S = np.dot(H, np.dot(P_estimation, np.transpose(H))) + R
-        print(S)
+        #print(S)
         K = np.dot(P_estimation, np.dot(np.transpose(H),  np.linalg.inv(S)))
-
+        print("K :")
+        print(K)
         # Update of X_est and P_est
         self.X_est = X_estimation + np.dot(K, i)
+        print("X_estimation dans fct KF")
+        print(X_estimation)
         self.P_est = P_estimation - np.dot(K, np.dot(H, P_estimation))
+        
+        self.X_est_pre = self.X_est
+        self.P_est_pre = self.P_est
 
 
 

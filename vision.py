@@ -117,6 +117,7 @@ class Vision :
             if self.x_front <= self.x_back : 
                 self.teta = np.pi + np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
         robot.setPositions(self.x_back,self.y_back,self.x_goal,self.y_goal,self.teta)
+        robot.setVisionDone(True)
 
     def find_corners(self):
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY) 
@@ -260,7 +261,6 @@ class Vision :
         robot.setDistMx(dist_mx)
         robot.setCor(self.cor)
         robot.setS(s)
-        robot.setVisionDone(True)
 
     def return_occupancy_matrix(self,robot):
         dim = (self.width_resized, self.height_resized)
