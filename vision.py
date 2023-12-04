@@ -53,7 +53,7 @@ class Vision :
         self.y_back = 0
         self.y_goal = 0
         self.cor = []
-        self.cornerss = []
+        self.corners = []
         self.m_cor = []
         self.path = []
         self.dist_mx = []
@@ -61,6 +61,8 @@ class Vision :
     def capture_image(self,cap): 
         ret, self.frame = cap.read()
         ret, self.frame = cap.read()
+        # plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
+        # plt.show()
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))

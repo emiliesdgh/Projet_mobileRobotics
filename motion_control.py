@@ -48,8 +48,8 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             print('first loop')
             fspeed = K*MAX_SPEED*error
             rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
-            leftspeed = min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed))
-            rightspeed = min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed))
+            leftspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed)))
+            rightspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed)))
             robot.setSpeedRight(rightspeed,node)
             robot.setSpeedLeft(leftspeed,node)
             robot.setAngle()
@@ -62,7 +62,8 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             robot.setSpeedRight(0,node)
             robot.setSpeedLeft(0,node)
             robot.path.pop(1)
-            robot.setAngle()
+            if len(robot.path) >1:
+                robot.setAngle()
     else:
         pass     
 

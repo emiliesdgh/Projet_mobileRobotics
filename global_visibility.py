@@ -79,6 +79,7 @@ class Global_Nav :
                     path_coord.append(cor[i])
         path_coord.append([robot.goal_X,robot.goal_Y])
         robot.path = path_coord
-        robot.setAngle()
+        if len(path_coord)>1:
+            robot.setAngle()
         self.path = path 
         self.path_coord = path_coord

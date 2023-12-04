@@ -1,6 +1,7 @@
 from tdmclient import ClientAsync, aw
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 #import the classes from the other modules
 from classes import Thymio
@@ -36,7 +37,7 @@ start = (0,0)
 goal = (10,15)
 
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 a = 0
 while(1) :
@@ -70,6 +71,7 @@ while(1) :
     vision.find_angle(robot)
     print(np.degrees(robot.theta),np.degrees(robot.goal_angle))
     print(robot.path)
+    time.sleep(0.2)
     if (a == 1):
         print(robot.goal_X,robot.goal_Y,robot.pos_X,robot.pos_Y)
         vision.find_corners()
