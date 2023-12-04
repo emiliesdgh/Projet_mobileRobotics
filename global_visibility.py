@@ -77,6 +77,7 @@ class Global_Nav :
                 if a != np.size(path):
                     i = int(p-1)
                     path_coord.append(cor[i])
+        path_coord.append([robot.goal_X,robot.goal_Y])
         robot.setPath(path_coord)
         self.path = path 
         self.path_coord = path_coord

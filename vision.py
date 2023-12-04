@@ -23,8 +23,8 @@ class Vision :
         self.BLACK_THRESHOLD = 40
         self.LOW_RED = (110,50,50)
         self.HIGH_RED = (130,255,255)
-        self.LOW_BLUE = (104, 42, 0)
-        self.HIGH_BLUE = (105, 250, 250)
+        self.LOW_BLUE = (110,50,50)
+        self.HIGH_BLUE = (130,255,255)
         self.LOW_GREEN = (55,42,0)
         self.HIGH_GREEN = (84,255,255)
         self.redpx = (255,0,0)
@@ -38,6 +38,8 @@ class Vision :
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
+        self.width_resized = 19
+        self.height_resized = 15
 
         #Variables
         self.frame = 0 
@@ -49,8 +51,6 @@ class Vision :
         self.y_front = 0
         self.y_back = 0
         self.y_goal = 0
-        self.width_resized = 19
-        self.height_resized = 15
         self.cor = []
         self.cornerss = []
         self.m_cor = []
