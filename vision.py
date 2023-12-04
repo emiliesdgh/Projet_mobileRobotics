@@ -41,6 +41,7 @@ class Vision :
         self.no_node = 42
         self.width_resized = 19
         self.height_resized = 15
+        self.kid_threshold = 150
 
         #Variables
         self.frame = 0 
@@ -116,8 +117,14 @@ class Vision :
                 self.teta = 2*np.pi - np.arccos((self.x_front-self.x_back)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
             if self.x_front <= self.x_back : 
                 self.teta = np.pi + np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
-        robot.setPositions(self.x_back,self.y_back,self.x_goal,self.y_goal,self.teta)
-        robot.setVisionDone(True)
+        if ((self.x_back == 0) & (self.y_back == 0)):
+            robot.setVisionDone(False)
+        elif (abs(robot.X_pos - self.x_back) > self.kid_threshold) or (abs(robot.Y_pos - self.y_back) > self.kid_threshold) : 
+            robot.kidnap = True 
+            robot.setVisionDone(False)
+        else :
+            robot.setPositions(self.x_back,self.y_back,self.x_goal,self.y_goal,self.teta)
+            robot.setVisionDone(True)
 
     def find_corners(self):
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY) 
@@ -139,9 +146,9 @@ class Vision :
                     m.append([x,y])
         th3 = cv2.adaptiveThreshold(self.thresh1,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
                                     cv2.THRESH_BINARY,11,2)
-        corners = cv2.goodFeaturesToTrack(th3, self.NB_CORNERS, 0.01, 45) #(img, max_nb_corners, quality level, min distance)
+        corners = cv2.goodFeaturesToTrack(th3, self.NB_CORNERS, 0.01, 45) 
         corners = np.int0(corners) 
-        d = self.d_wide_cor #distance d'éloignement des points des corners 
+        d = self.d_wide_cor 
         b = int(np.size(m)/2)
         cor = []
         m_cor = []

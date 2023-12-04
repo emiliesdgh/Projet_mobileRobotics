@@ -18,7 +18,7 @@ node = aw(client.wait_for_node())
 aw(node.lock())
 aw(node.wait_for_variables())
 
-test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+""" test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -34,7 +34,7 @@ test_occupancy_grid = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 start = (0,0)
-goal = (10,15)
+goal = (10,15) """
 
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -72,7 +72,7 @@ while(1) :
 
     print(robot.path)
     time.sleep(0.2)
-    if (a == 1):
+    if ((robot.vision == 1) & (a == 1))or((robot.vision == 1) & (robot.kidnap == True)):
         print(robot.goal_X,robot.goal_Y,robot.pos_X,robot.pos_Y)
         vision.find_corners()
         vision.trace_contours()
@@ -82,6 +82,8 @@ while(1) :
         global_nav.extract_path(robot)
         print('end global')
         print(robot.path)
+        if robot.kidnap == True:
+            robot.kidnap == False
 
     print('end vision')
 
