@@ -81,21 +81,15 @@ class KalmanFilter :
 
         else : # if we only have the Odometry
 
-            y = [[0],[self.v_X],[0],[self.v_Y],[0],[self.v_Theta]]
+            y = [[self.v_X],[self.v_Y],[self.v_Theta]]
 
-            H = [[0, 0, 0, 0, 0, 0], 
-                 [0, 1, 0, 0, 0, 0],
-                 [0, 0, 0, 0, 0, 0],
+            H = [[0, 1, 0, 0, 0, 0],
                  [0, 0, 0, 1, 0, 0],
-                 [0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 1]] # y = [0, x°, 0, y°, 0, theta°]' -> only the velocities
             
-            R = [[0, 0, 0, 0, 0, 0], 
-                 [0, 6.48, 0, 0, 0, 0],
-                 [0, 0, 0, 0, 0, 0],
-                 [0, 0, 0, 6.48, 0, 0],
-                 [0, 0, 0, 0, 0, 0],
-                 [0, 0, 0, 0, 0, 0.615]]
+            R = [[6.48, 0, 0],
+                 [0, 6.48, 0],
+                 [0, 0, 0.615]]
             
         i = y - np.dot(H, X_estimation)
         print(P_estimation)
