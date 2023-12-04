@@ -40,9 +40,9 @@ class KalmanFilter :
                   [0, 0, 0, 0, 1, self.Ts],
                   [0, 0, 0, 0, 0,  1]]
         
-        self.Q = [[7.7302, 0, 0, 0, 0, 0], 
+        self.Q = [[7.73, 0, 0, 0, 0, 0], 
                   [0, 1000, 0, 0, 0, 0],
-                  [0, 0, 7.7302, 0, 0, 0],
+                  [0, 0, 7.73, 0, 0, 0],
                   [0, 0, 0, 1000, 0, 0],
                   [0, 0, 0, 0, 0.0049, 0],
                   [0, 0, 0, 0, 0, 1000]]
@@ -50,6 +50,7 @@ class KalmanFilter :
     def filter_kalman(self, X_est_pre, P_est_pre, Thymio) :
 
         '''Kalman Filter calculations'''
+        ###MANQUE une valeur initiale pour X_est_pre ? ou est-ce simplement X_est = 0?
 
         X_estimation = self.A @ X_est_pre 
         P_estimation = self.A @ (P_est_pre @ self.A.T)
@@ -64,12 +65,12 @@ class KalmanFilter :
             H = np.eye(6) # y = [x, x°, y, y°, theta, theta°]'
 
             # R : Covariance Matrix of the mesures/sensors
-            R = [[7.7302, 0, 0, 0, 0, 0], 
-                 [0, 6.4883, 0, 0, 0, 0],
-                 [0, 0, 7.7302, 0, 0, 0],
-                 [0, 0, 0, 6.4883, 0, 0],
+            R = [[7.73, 0, 0, 0, 0, 0], 
+                 [0, 6.48, 0, 0, 0, 0],
+                 [0, 0, 7.73, 0, 0, 0],
+                 [0, 0, 0, 6.48, 0, 0],
                  [0, 0, 0, 0, 0.0049, 0],
-                 [0, 0, 0, 0, 0, 0.6152]]
+                 [0, 0, 0, 0, 0, 0.615]]
 
             Thymio.vision = 0 # Reset the Computer Vision booleen to 0
 
@@ -85,11 +86,11 @@ class KalmanFilter :
                  [0, 0, 0, 0, 0, 1]] # y = [0, x°, 0, y°, 0, theta°]' -> only the velocities
             
             R = [[0, 0, 0, 0, 0, 0], 
-                 [0, 6.4883, 0, 0, 0, 0],
+                 [0, 6.48, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0],
-                 [0, 0, 0, 6.4883, 0, 0],
+                 [0, 0, 0, 6.48, 0, 0],
                  [0, 0, 0, 0, 0, 0],
-                 [0, 0, 0, 0, 0, 0.6152]]
+                 [0, 0, 0, 0, 0, 0.615]]
             
         i = y - H @ X_estimation
         S = H @ (P_estimation @ H.T) + R
