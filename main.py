@@ -36,7 +36,8 @@ start = (0,0)
 goal = (10,15)
 
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
+
 a = 0
 while(1) :
     a = a + 1
