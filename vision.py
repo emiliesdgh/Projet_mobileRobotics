@@ -34,7 +34,7 @@ class Vision :
         self.line_width = 2
         self.NB_SHAPES = 3
         self.NB_CORNERS = 11
-        self.d_wide_cor = 55
+        self.d_wide_cor = 70 #au lieu de 60
         self.mean_value_along_line = 145
         self.max_nb_threshold = 3
         self.v_inf = 3000
@@ -67,6 +67,13 @@ class Vision :
         #first frame catpured is "yellowish" and unusable 
         ret, self.frame = cap.read()
         ret, self.frame = cap.read()
+
+        # Code for plotting the camera (comment if you need but DO NOT ELIMINATE)
+        """ plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
+        plt.ion()
+        plt.show()
+        plt.pause(.01) """
+
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))
@@ -200,7 +207,7 @@ class Vision :
             if x1 >= 640:
                 x1 = 639
             if x1 >50:
-                if x1<550:
+                if x1<600:
                     if y1 >50:
                         if y1<420:
                             cor.append([x1,y1])
@@ -227,6 +234,9 @@ class Vision :
                         if np.size(np.where(abs(np.diff(data))>0)[0]) <= 2:
                             if np.mean(data) > self.mean_value_along_line:
                                 cv2.line(self.thresh2, self.cornerss[i], self.cornerss[j], self.bluepx, 4)
+
+        cv2.circle(self.thresh2, [self.x_goal,self.y_goal], 4, (0, 0, 255), cv2.FILLED)
+        cv2.circle(self.thresh2, [self.x_back,self.y_back], 4, (0, 0, 255), cv2.FILLED)
 
     def compute_dist_mx(self,robot):
         s = int(((np.size(self.cor))/2)+2) 

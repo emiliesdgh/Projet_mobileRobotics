@@ -23,6 +23,7 @@ class KalmanFilter :
         self.pos_X_odo = 0
         self.pos_Y_odo = 0
         self.pos_theta_odo = 0
+        self.angle = 0
 
         self.v_X = 14
         self.v_Y = 0
@@ -91,21 +92,28 @@ class KalmanFilter :
                  [0, 6.48, 0],
                  [0, 0, 0.615]]
             
-        print("y :")
-        print(y)
+        #print("y :")
+        #print(y)
         i = y - np.dot(H, X_estimation)
-        #print(P_estimation)
+        ##print(P_estimation)
         S = np.dot(H, np.dot(P_estimation, np.transpose(H))) + R
-        #print(S)
+        ##print(S)
         K = np.dot(P_estimation, np.dot(np.transpose(H),  np.linalg.inv(S)))
-        #print("K :")
-        #print(K)
+        ##print("K :")
+        ##print(K)
         # Update of X_est and P_est
-        print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
-        print("value of v theta : ", self.v_Theta)
+        #print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
+        #print("value of v theta : ", self.v_Theta)
         self.X_est = X_estimation + np.dot(K, i)
-        print("X_estimation dans fct KF")
-        print(X_estimation)
+
+        #self.theta_corr() 
+        #self.X_est[4][0] = np.mod(self.X_est[4][0],2*np.pi)
+        #
+        #print("dans filtering", self.X_est[4][0])
+        #self.angle = np.mod(self.X_est[4][0],2*np.pi)
+        
+        #print("X_estimation dans fct KF")
+        #print(X_estimation)
         self.P_est = P_estimation - np.dot(K, np.dot(H, P_estimation))
         
         self.X_est_pre = self.X_est
@@ -125,7 +133,7 @@ class KalmanFilter :
         self.speed_L = Thymio.motor_speed_left
         self.speed_R = Thymio.motor_speed_right
 
-        print("speed of L and R :", self.speed_L, ' ', self.speed_R )
+        #print("speed of L and R :", self.speed_L, ' ', self.speed_R )
         
         self.wheel_dist = 9.5 # Distance between the wheel (where they touch the ground)
 
@@ -133,12 +141,12 @@ class KalmanFilter :
         delta_t = time.time() - self.pre_time            # time.time() to get the value of the time
         delta_S = (self.speed_R + self.speed_L) / 2                         # Forward speed
         self.v_Theta = (self.speed_R - self.speed_L) / self.wheel_dist     # Angular velocity 
-        print("values of deltaS", delta_S)
+        #print("values of deltaS", delta_S)
         # calculations of the variations of the speed of the Thymio
         self.v_X = delta_S * np.cos(Thymio.theta + self.v_Theta/2)          # SPEED in X
         self.v_Y = delta_S * np.sin(Thymio.theta + self.v_Theta/2)          # SPEED in y
-        #print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
-        #print("value of v theta : ", self.v_Theta)
+        ##print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
+        ##print("value of v theta : ", self.v_Theta)
         # ou ?((theta_init + delta_Theta)/2)?? savoir lequel est juste 
         # ma version c'est celle du cours en théorie
 
@@ -150,6 +158,20 @@ class KalmanFilter :
 
         # Update for the previous time with the current time for the next iteration
         self.pre_time = time.time()
+
+    def theta_corr(self) :
+        if self.X_est[4][0] >= 1.98*np.pi :
+            self.X_est[4][0] = self.X_est[4][0] - 2*np.pi
+            #self.X_est[4][0] =  self.X_est[4][0] - np.pi
+            
+
+        elif self.X_est[4][0] <= - 1.98*np.pi :
+            self.X_est[4][0] = 2*np.pi - self.X_est[4][0] #- np.pi
+
+        else :
+            self.X_est[4][0] = self.X_est[4][0]
+        #print("dans theta corr", self.X_est[4][0])
+        
 '''
         ##&&&&&& ATTTTEEENTIIIOOONNNNNN
         self.v_X =  delta_X  #récupérer les valeurs X_init et Y_init de CV
@@ -167,7 +189,7 @@ class KalmanFilter :
         # position  de base de X, Y et Theta recupérée par la CV
 
 
-        print(Thymio)
+        #print(Thymio)
 
 '''
 
