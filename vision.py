@@ -67,6 +67,13 @@ class Vision :
         #first frame catpured is "yellowish" and unusable 
         ret, self.frame = cap.read()
         ret, self.frame = cap.read()
+
+        # Code for plotting the camera (comment if you need but DO NOT ELIMINATE)
+        """ plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
+        plt.ion()
+        plt.show()
+        plt.pause(.01) """
+
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))

@@ -42,6 +42,7 @@ class Thymio :
         self.goal_reached_f=False   #has the robot reached the next point
         self.prev_error=0           #for derivative part of PID control
         self.int_error=0            #for integral part of PID control
+        self.prev_time=0
 
         self.motor_speed_left=0
         self.motor_speed_right=0

@@ -1,5 +1,6 @@
 from classes import Thymio
 import numpy as np
+import time
 
 #Define constants
 ANGLE_ERROR_TRESH = 0.1
@@ -12,35 +13,36 @@ K=0.1
 
 
 def PIDcontrol(error,robot):
-        p_speed = KP * error
-        robot.int_error += error
-        i_speed = KI * robot.int_error
-        d_speed = KD * (error - robot.prev_error)
-        robot.prev_error = error
-        return p_speed+i_speed+d_speed
+    dt=time.time()-robot.prev_time
+    p_speed = KP * error
+    robot.int_error += error
+    i_speed = KI * robot.int_error
+    d_speed = KD * (error - robot.prev_error)/dt
+    robot.prev_error = error
+    robot.prev_time=time.time()
+    return p_speed+i_speed+d_speed
 
 def turn(current_angle, robot, node):
-    # For me this line is not useful as it is the condition to enter the turn function so it is already the case ? 
-    robot.goal_reached_t = False
-    error=robot.goal_angle-current_angle
-    if (abs(error)<=ANGLE_ERROR_TRESH):
-        robot.goal_reached_t = True
-        robot.goal_reached_f = False
-        robot.prev_error = 0
-        robot.int_error = 0
-        robot.setSpeedRight(0,node)
-        robot.setSpeedLeft(0,node)
-    else:
-        speed=int(min(MAX_SPEED, max(-MAX_SPEED, PIDcontrol(error,robot))))
-        print(speed)
-        # I just changed signs
-        robot.setSpeedRight(-speed,node)
-        robot.setSpeedLeft(speed,node)   
+    # For me this line is not useful as it is the condition to enter the turn function so it is already the case ?
+    if len(robot.path) > 1:
+        error=robot.goal_angle-current_angle
+        if (abs(error)<=ANGLE_ERROR_TRESH):
+            robot.goal_reached_t = True
+            robot.goal_reached_f = False
+            robot.prev_error = 0
+            robot.int_error = 0
+            robot.setSpeedRight(0,node)
+            robot.setSpeedLeft(0,node)
+        else:
+            speed=int(min(MAX_SPEED, max(-MAX_SPEED, PIDcontrol(error,robot))))
+            print(speed)
             
+            robot.setSpeedRight(speed,node)
+            robot.setSpeedLeft(-speed,node)   
+                
 
 def go_to_next_point(current_angle, current_position, obstacle, robot, node): 
-    if len(robot.path) > 1:
-        robot.goal_reached_f = False    
+    if len(robot.path) > 1:  
         deltax= current_position[0]-robot.path[1][0]
         deltay= current_position[1]-robot.path[1][1]
         distance=deltax**2+deltay**2

@@ -18,16 +18,21 @@ node = aw(client.wait_for_node())
 aw(node.lock())
 aw(node.wait_for_variables())
 
+# Constant variables
+VISION_VERBOSE = True
+
 #Classes initialization
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
 KF = KalmanFilter()
 vision = Vision()
 global_nav = Global_Nav()
+GN = globalNavigation()
 
 #Video capturing 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
 
 a = 0
+      
 while(1) :
     a = a + 1
     #VISION
@@ -38,26 +43,40 @@ while(1) :
     if (a == 1) : 
         vision.find_corners()
         vision.trace_contours()
+        plt.imshow(cv2.cvtColor(vision.frame, cv2.COLOR_BGR2RGB))
+        plt.show()
     if ((robot.vision == 1) & (a == 1))or((a != 1) & (robot.kidnap == True) & (robot.vision == 1)):
         vision.compute_dist_mx(robot)
         global_nav.dijkstra(robot)
         global_nav.extract_path(robot)
-        if robot.kidnap == True:
+        if robot.kidnap == True: # this can be eliminated because you only enter here if kidnap==True
             robot.kidnap = False
     robot.vision = True
     #END VISION
+
+    if VISION_VERBOSE == True:
+        print("--------------------------")
+        print("Vision output")
+        print("--------------------------")
+        print("goal=", robot.goal_X,",", robot.goal_Y)
+        print("pos=", robot.pos_X,",", robot.pos_Y)
+        print(f"angle={robot.theta:.2f}")
+        print(f"goal_angle={robot.goal_angle:.2f}")
+        print("path=", robot.path)
+        print("corners=", vision.cornerss)
+
     #FILTERING
-    for i in range(1,10) :
-        KF.odometry_update(robot)
-        KF.filter_kalman(robot)
-        #print(np.degrees(KF.X_est[4][0]),(np.degrees(robot.goal_angle)))
-        print(KF.X_est)
-    #MOTION CONTROL
-        if not robot.goal_reached_t:
-            motion_control.turn(robot.theta,robot,node)
-        if robot.goal_reached_t and not robot.goal_reached_f:
-            motion_control.go_to_next_point(robot.theta,[robot.pos_X,robot.pos_Y],0,robot,node)
+    KF.odometry_update(robot)
+    KF.filter_kalman(robot)
+    #print(np.degrees(KF.X_est[4][0]),(np.degrees(robot.goal_angle)))
+    #print(KF.X_est)
     
+    #MOTION CONTROL
+    
+    if not robot.goal_reached_t:
+        motion_control.turn(robot.theta,robot,node)
+    if robot.goal_reached_t and not robot.goal_reached_f:
+        motion_control.go_to_next_point(robot.theta,[robot.pos_X,robot.pos_Y],0,robot,node)
 
 # Code for Vision + Visibility global nav 
 """     
@@ -102,7 +121,6 @@ while(1) :
 
 
       
-
 
 
 
