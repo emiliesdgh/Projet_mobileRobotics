@@ -4,28 +4,47 @@ import time
 
 #Define constants
 ANGLE_ERROR_TRESH = 0.1
-DIST_ERROR_TRESH = 15               
-MAX_SPEED=70               
-KP=200                 
-KI=10                  
+DIST_ERROR_TRESH = 10               
+MAX_SPEED=100               
+NOM_SPEED=(50)
+KP=100                 
+KI=20                  
 KD=10                 
-K=0.1                    
+K=0.5                  
 
 
 def PIDcontrol(error,robot):
     dt=time.time()-robot.prev_time
-    p_speed = KP * error
-    robot.int_error += error
-    i_speed = KI * robot.int_error
-    d_speed = KD * (error - robot.prev_error)/dt
-    robot.prev_error = error
+    if (error > np.pi):
+        error=np.pi-error
+        p_speed = KP * error
+        robot.int_error += error
+        i_speed = KI * robot.int_error
+        d_speed = KD * (error - robot.prev_error)/dt
+        robot.prev_error = error
+
+    elif (error < -np.pi):
+        error=-error-np.pi
+        p_speed = KP * error
+        robot.int_error += error
+        i_speed = KI * robot.int_error
+        d_speed = KD * (error - robot.prev_error)/dt
+        robot.prev_error = error
+    else:
+        p_speed = KP * error
+        robot.int_error += error
+        i_speed = KI * robot.int_error
+        d_speed = KD * (error - robot.prev_error)/dt
+        robot.prev_error = error
     robot.prev_time=time.time()
-    return p_speed+i_speed+d_speed
+    return p_speed+i_speed#+d_speed
 
 def turn(current_angle, robot, node):
-    # For me this line is not useful as it is the condition to enter the turn function so it is already the case ?
+
     if len(robot.path) > 1:
-        error=robot.goal_angle-current_angle
+        error=(robot.goal_angle-current_angle)
+        #print("error_angle", error)
+        #print("error_angle_norm", error%(2*np.pi))
         if (abs(error)<=ANGLE_ERROR_TRESH):
             robot.goal_reached_t = True
             robot.goal_reached_f = False
@@ -35,7 +54,7 @@ def turn(current_angle, robot, node):
             robot.setSpeedLeft(0,node)
         else:
             speed=int(min(MAX_SPEED, max(-MAX_SPEED, PIDcontrol(error,robot))))
-            print(speed)
+            #print(speed)
             
             robot.setSpeedRight(speed,node)
             robot.setSpeedLeft(-speed,node)   
@@ -48,19 +67,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         distance=deltax**2+deltay**2
         #print(deltax,deltay,'distance =',distance)
         error=np.sqrt(distance)
-        if ((obstacle==False) and (abs(deltax)>=DIST_ERROR_TRESH) and (abs(deltay)>=DIST_ERROR_TRESH)):
-            #print('first loop')
-            fspeed = K*MAX_SPEED*error
-            #print('fspeed=', fspeed)
-            rspeed = PIDcontrol(current_angle-robot.goal_angle,robot)
-            #print('rspeed=', rspeed)
-            leftspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed)))
-            rightspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed)))
-            robot.setSpeedRight(rightspeed,node)
-            robot.setSpeedLeft(leftspeed,node)
-            robot.setAngle()
-        else:
-            #print('second loop')
+        if (obstacle==False and (abs(deltax)<=DIST_ERROR_TRESH) and (abs(deltay)<=DIST_ERROR_TRESH)):
             robot.goal_reached_f = True
             robot.goal_reached_t = False
             robot.prev_error = 0
@@ -70,6 +77,19 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             robot.path.pop(1)
             if len(robot.path) >1:
                 robot.setAngle()
+
+        else:
+            #print('first loop')
+            fspeed = K*error+NOM_SPEED
+            #print('fspeed=', fspeed)
+            rspeed = PIDcontrol(robot.goal_angle - current_angle,robot)
+            #print("rspeed",rspeed)
+            leftspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed-rspeed)))
+            rightspeed = int(min(MAX_SPEED, max(-MAX_SPEED, fspeed+rspeed)))
+            #print("speed=", leftspeed, rightspeed)
+            robot.setSpeedRight(rightspeed,node)
+            robot.setSpeedLeft(leftspeed,node)
+            robot.setAngle()
     else:
         pass     
 
