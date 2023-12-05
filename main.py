@@ -29,7 +29,7 @@ global_nav = Global_Nav()
 GN = globalNavigation()
 
 #Video capturing 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
 
 a = 0
       
@@ -63,7 +63,7 @@ while(1) :
         print(f"angle={robot.theta:.2f}")
         print(f"goal_angle={robot.goal_angle:.2f}")
         print("path=", robot.path)
-        print("corners=", vision.cornerss)
+        #print("corners=", vision.cornerss)
 
     #FILTERING
     KF.odometry_update(robot)

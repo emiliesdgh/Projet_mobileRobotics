@@ -34,7 +34,7 @@ class Vision :
         self.line_width = 2
         self.NB_SHAPES = 3
         self.NB_CORNERS = 11
-        self.d_wide_cor = 55
+        self.d_wide_cor = 60
         self.mean_value_along_line = 145
         self.max_nb_threshold = 3
         self.v_inf = 3000
