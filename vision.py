@@ -47,6 +47,7 @@ class Vision :
         self.frame = 0 
         self.img = 0 
         self.thresh1 = 0
+        self.thresh2 = 0
         self.x_front = 0
         self.x_back = 0
         self.x_goal = 0
@@ -60,16 +61,19 @@ class Vision :
         self.dist_mx = []
 
     def capture_image(self,cap): 
+        #capture a frame out of the video that will be used through CV part 
+        #filter the frame to erase some of the noise of the camera
+        #Nb : we captured two frames because sometimes, at first connection of the camera to the PC, the 
+        #first frame catpured is "yellowish" and unusable 
         ret, self.frame = cap.read()
         ret, self.frame = cap.read()
-        # plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
-        # plt.show()
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))
         self.img = cv2.medianBlur(img,5)
 
     def find_goal_pos(self):
+        #Isolate goal red square and find the center position 
         hsv = cv2.cvtColor(self.img, cv2.COLOR_RGB2HSV)
         mask = cv2.inRange(hsv, self.LOW_RED, self.HIGH_RED)
         imask = mask>0
@@ -91,6 +95,8 @@ class Vision :
                 self.y_goal = int(M['m01']/M['m00']) 
 
     def find_start_pos(self,robot,a):
+        #Isolate middle green point on the thymio through color filtering and find its approximate position 
+        #using maxLoc function 
         hsv = cv2.cvtColor(self.img, cv2.COLOR_RGB2HSV)
         mask = cv2.inRange(hsv, self.LOW_GREEN, self.HIGH_GREEN)
         green = cv2.bitwise_and(self.frame,self.frame, mask = mask)
@@ -98,10 +104,10 @@ class Vision :
         _, self.thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY) 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(self.thresh1)
         [x_back,y_back] = maxLoc
-        if ((abs(self.x_back - x_back) > self.kid_threshold) or (abs(self.y_back - y_back) > self.kid_threshold)) & (a !=1):
-            print('kidnap')
-            robot.kidnap = True
-        [self.x_back,self.y_back] = [x_back,y_back]
+        if (x_back != 0) or (y_back != 0):
+            if ((abs(self.x_back - x_back) > self.kid_threshold) or (abs(self.y_back - y_back) > self.kid_threshold)) & (a !=1):
+                robot.kidnap = True
+            [self.x_back,self.y_back] = [x_back,y_back]
 
     def find_angle(self,robot):
         hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
@@ -110,31 +116,31 @@ class Vision :
         gray = cv2.cvtColor(blue, cv2.COLOR_RGB2GRAY) 
         _, self.thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY) 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(self.thresh1)
-        [self.x_front,self.y_front] = maxLoc
-        if self.y_front < self.y_back : 
-            if self.x_front > self.x_back : 
-                self.teta = np.arccos((self.x_front-self.x_back)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
-            if self.x_front <= self.x_back : 
-                self.teta = np.pi - np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
-        if self.y_front >= self.y_back : 
-            if self.x_front > self.x_back : 
-                self.teta = 2*np.pi - np.arccos((self.x_front-self.x_back)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
-            if self.x_front <= self.x_back : 
-                self.teta = np.pi + np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
-        if ((self.x_back == 0) & (self.y_back == 0)):
-            print('green point zero')
-            robot.setVisionDone(False)
-        else :
-            print('normal')
+        [x_front,y_front] = maxLoc
+        if (x_front != 0) or (y_front != 0):
+            [self.x_front,self.y_front] = [x_front,y_front]
+            if self.y_front < self.y_back : 
+                if self.x_front > self.x_back : 
+                    self.teta = np.arccos((self.x_front-self.x_back)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
+                if self.x_front <= self.x_back : 
+                    self.teta = np.pi - np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
+            if self.y_front >= self.y_back : 
+                if self.x_front > self.x_back : 
+                    self.teta = 2*np.pi - np.arccos((self.x_front-self.x_back)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
+                if self.x_front <= self.x_back : 
+                    self.teta = np.pi + np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
             robot.setPositions(self.x_back,self.y_back,self.x_goal,self.y_goal,self.teta)
             robot.setVisionDone(True)
+        #Hidden thymio, do not update the vision variables 
+        else:
+            robot.setVisionDone(False)
 
     def find_corners(self):
         gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY) 
         ret, thresh2 = cv2.threshold(gray, self.BLACK_THRESHOLD, 255, cv2.THRESH_BINARY) 
         contours, _ = cv2.findContours( 
             thresh2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
-        self.thresh1 = thresh2
+        self.thresh2 = thresh2
         i = 0
         m = []
         for contour in contours:  
@@ -147,7 +153,7 @@ class Vision :
                 y = int(M['m01']/M['m00']) 
                 if len(m)<self.NB_SHAPES:
                     m.append([x,y])
-        th3 = cv2.adaptiveThreshold(self.thresh1,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+        th3 = cv2.adaptiveThreshold(self.thresh2,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
                                     cv2.THRESH_BINARY,11,2)
         corners = cv2.goodFeaturesToTrack(th3, self.NB_CORNERS, 0.01, 45) 
         corners = np.int0(corners) 
@@ -217,10 +223,10 @@ class Vision :
                 if i != j:
                     if self.m_cor[i] == self.m_cor[j]:
                         line = np.transpose(np.array(draw.line(self.cornerss[i][0], self.cornerss[i][1], self.cornerss[j][0], self.cornerss[j][1])))
-                        data = self.thresh1[line[:, 1], line[:, 0]]
+                        data = self.thresh2[line[:, 1], line[:, 0]]
                         if np.size(np.where(abs(np.diff(data))>0)[0]) <= 2:
                             if np.mean(data) > self.mean_value_along_line:
-                                cv2.line(self.thresh1, self.cornerss[i], self.cornerss[j], self.bluepx, 4)
+                                cv2.line(self.thresh2, self.cornerss[i], self.cornerss[j], self.bluepx, 4)
 
     def compute_dist_mx(self,robot):
         s = int(((np.size(self.cor))/2)+2) 
@@ -228,12 +234,12 @@ class Vision :
         for i in range(1,s):
             if i == (s-1):
                 line = np.transpose(np.array(draw.line(self.x_back,self.y_back, self.x_goal,self.y_goal)))
-                data = self.thresh1[line[:, 1], line[:, 0]]
+                data = self.thresh2[line[:, 1], line[:, 0]]
                 if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                     dist_mx[i][0] = np.sqrt(np.power((self.x_goal-self.x_back),2)+np.power((self.y_goal-self.y_back),2))
                 continue 
             line = np.transpose(np.array(draw.line(self.x_back,self.y_back,self.cor[i-1][0],self.cor[i-1][1])))
-            data = self.thresh1[line[:, 1], line[:, 0]]
+            data = self.thresh2[line[:, 1], line[:, 0]]
             if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                 dist_mx[i][0] = np.sqrt(np.power((self.cor[i-1][0]-self.x_back),2)+np.power((self.cor[i-1][1]-self.y_back),2))
         for i in range(0,(s-2)):
@@ -242,29 +248,29 @@ class Vision :
                     continue 
                 if j == 0 : 
                     line = np.transpose(np.array(draw.line(self.x_back,self.y_back, self.cor[i][0],self.cor[i][1])))
-                    data = self.thresh1[line[:, 1], line[:, 0]]
+                    data = self.thresh2[line[:, 1], line[:, 0]]
                     if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                         dist_mx[j][i+1] = np.sqrt(np.power((self.cor[i][0]-self.x_back),2)+np.power((self.cor[i][1]-self.y_back),2))
                     continue 
                 if j == int(s-1):
                     line = np.transpose(np.array(draw.line(self.x_goal,self.y_goal, self.cor[i][0],self.cor[i][1])))
-                    data = self.thresh1[line[:, 1], line[:, 0]]
+                    data = self.thresh2[line[:, 1], line[:, 0]]
                     if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                         dist_mx[j][i+1] = np.sqrt(np.power((self.cor[i][0]-self.x_goal),2)+np.power((self.cor[i][1]-self.y_goal),2))
                     continue
                 line = np.transpose(np.array(draw.line(self.cor[j-1][0],self.cor[j-1][1],self.cor[i][0],self.cor[i][1])))
-                data = self.thresh1[line[:, 1], line[:, 0]]
+                data = self.thresh2[line[:, 1], line[:, 0]]
                 if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                     dist_mx[j][i+1] = np.sqrt(np.power((self.cor[i][0]-self.cor[j-1][0]),2)+np.power((self.cor[i][1]-self.cor[j-1][1]),2))
         for i in range(0,(s-1)):
             if i == 0:
                 line = np.transpose(np.array(draw.line(self.x_back,self.y_back, self.x_goal,self.y_goal)))
-                data = self.thresh1[line[:, 1], line[:, 0]]
+                data = self.thresh2[line[:, 1], line[:, 0]]
                 if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                     dist_mx[0][s-1] = np.sqrt(np.power((self.x_goal-self.x_back),2)+np.power((self.y_goal-self.y_back),2))
                 continue 
             line = np.transpose(np.array(draw.line(self.x_goal,self.y_goal,self.cor[i-1][0],self.cor[i-1][1])))
-            data = self.thresh1[line[:, 1], line[:, 0]]
+            data = self.thresh2[line[:, 1], line[:, 0]]
             if np.size(np.where(abs(np.diff(data))>0)[0]) <= 3 : 
                 dist_mx[i][s-1] = np.sqrt(np.power((self.cor[i-1][0]-self.x_goal),2)+np.power((self.cor[i-1][1]-self.y_goal),2))
         self.dist_mx = dist_mx

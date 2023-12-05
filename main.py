@@ -18,46 +18,41 @@ node = aw(client.wait_for_node())
 aw(node.lock())
 aw(node.wait_for_variables())
 
+#Classes initialization
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
 KF = KalmanFilter()
+vision = Vision()
+global_nav = Global_Nav()
+
+#Video capturing 
 cap = cv2.VideoCapture(1)
-#cap = cv2.VideoCapture(1)
 
 a = 0
 while(1) :
     a = a + 1
-    robot.kidnap = False
-    vision = Vision()
+    #VISION
     vision.capture_image(cap)
     vision.find_goal_pos()
     vision.find_start_pos(robot,a)
     vision.find_angle(robot)
-    #print('green point',robot.pos_X, robot.goal_X)
-    if (a == 1):
-    #if ((robot.vision == 1) & (a == 1))or((a != 1) & (robot.kidnap == True) & (robot.vision == 1)):
-        #print('enter if')
-        #print(robot.goal_X,robot.goal_Y,robot.pos_X,robot.pos_Y)
-        if (a == 1) : 
-         #   print('corners')
-            vision.find_corners()
-            vision.trace_contours()
+    if (a == 1) : 
+        vision.find_corners()
+        vision.trace_contours()
+    if ((robot.vision == 1) & (a == 1))or((a != 1) & (robot.kidnap == True) & (robot.vision == 1)):
         vision.compute_dist_mx(robot)
-        global_nav = Global_Nav()
         global_nav.dijkstra(robot)
         global_nav.extract_path(robot)
-        #print(robot.path)
         if robot.kidnap == True:
-            robot.kidnap == False
+            robot.kidnap = False
     robot.vision = True
-    print('end vision')
+    #END VISION
+    #FILTERING
     for i in range(1,10) :
-        
-        
         KF.odometry_update(robot)
         KF.filter_kalman(robot)
         #print(np.degrees(KF.X_est[4][0]),(np.degrees(robot.goal_angle)))
         print(KF.X_est)
-
+    #MOTION CONTROL
         if not robot.goal_reached_t:
             motion_control.turn(robot.theta,robot,node)
         if robot.goal_reached_t and not robot.goal_reached_f:

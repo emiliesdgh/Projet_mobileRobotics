@@ -3,7 +3,7 @@ import numpy as np
 
 #Define constants
 ANGLE_ERROR_TRESH = 0.1
-DIST_ERROR_TRESH = 5               
+DIST_ERROR_TRESH = 15               
 MAX_SPEED=70               
 KP=200                 
 KI=10                  
@@ -20,6 +20,7 @@ def PIDcontrol(error,robot):
         return p_speed+i_speed+d_speed
 
 def turn(current_angle, robot, node):
+    # For me this line is not useful as it is the condition to enter the turn function so it is already the case ? 
     robot.goal_reached_t = False
     error=robot.goal_angle-current_angle
     if (abs(error)<=ANGLE_ERROR_TRESH):
@@ -32,8 +33,9 @@ def turn(current_angle, robot, node):
     else:
         speed=int(min(MAX_SPEED, max(-MAX_SPEED, PIDcontrol(error,robot))))
         print(speed)
-        robot.setSpeedRight(speed,node)
-        robot.setSpeedLeft(-speed,node)   
+        # I just changed signs
+        robot.setSpeedRight(-speed,node)
+        robot.setSpeedLeft(speed,node)   
             
 
 def go_to_next_point(current_angle, current_position, obstacle, robot, node): 
@@ -44,7 +46,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         distance=deltax**2+deltay**2
         #print(deltax,deltay,'distance =',distance)
         error=np.sqrt(distance)
-        if (obstacle==False and abs(deltax)>=DIST_ERROR_TRESH and abs(deltay)>=DIST_ERROR_TRESH):
+        if ((obstacle==False) and (abs(deltax)>=DIST_ERROR_TRESH) and (abs(deltay)>=DIST_ERROR_TRESH)):
             #print('first loop')
             fspeed = K*MAX_SPEED*error
             #print('fspeed=', fspeed)
