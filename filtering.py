@@ -23,6 +23,7 @@ class KalmanFilter :
         self.pos_X_odo = 0
         self.pos_Y_odo = 0
         self.pos_theta_odo = 0
+        self.angle = 0
 
         self.v_X = 14
         self.v_Y = 0
@@ -104,6 +105,13 @@ class KalmanFilter :
         #print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
         #print("value of v theta : ", self.v_Theta)
         self.X_est = X_estimation + np.dot(K, i)
+
+        #self.theta_corr() 
+        #self.X_est[4][0] = np.mod(self.X_est[4][0],2*np.pi)
+        #
+        #print("dans filtering", self.X_est[4][0])
+        #self.angle = np.mod(self.X_est[4][0],2*np.pi)
+        
         #print("X_estimation dans fct KF")
         #print(X_estimation)
         self.P_est = P_estimation - np.dot(K, np.dot(H, P_estimation))
@@ -150,6 +158,20 @@ class KalmanFilter :
 
         # Update for the previous time with the current time for the next iteration
         self.pre_time = time.time()
+
+    def theta_corr(self) :
+        if self.X_est[4][0] >= 1.98*np.pi :
+            self.X_est[4][0] = self.X_est[4][0] - 2*np.pi
+            #self.X_est[4][0] =  self.X_est[4][0] - np.pi
+            
+
+        elif self.X_est[4][0] <= - 1.98*np.pi :
+            self.X_est[4][0] = 2*np.pi - self.X_est[4][0] #- np.pi
+
+        else :
+            self.X_est[4][0] = self.X_est[4][0]
+        #print("dans theta corr", self.X_est[4][0])
+        
 '''
         ##&&&&&& ATTTTEEENTIIIOOONNNNNN
         self.v_X =  delta_X  #récupérer les valeurs X_init et Y_init de CV

@@ -19,7 +19,8 @@ aw(node.lock())
 aw(node.wait_for_variables())
 
 # Constant variables
-VISION_VERBOSE = True
+VISION_VERBOSE = False
+FILTERING_VERBOSE = True
 
 #Classes initialization
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
@@ -46,10 +47,12 @@ while(1) :
         plt.imshow(cv2.cvtColor(vision.frame, cv2.COLOR_BGR2RGB))
         plt.show()
     if ((robot.vision == 1) & (a == 1))or((a != 1) & (robot.kidnap == True) & (robot.vision == 1)):
+        #print('path recomputed')
         vision.compute_dist_mx(robot)
         global_nav.dijkstra(robot)
         global_nav.extract_path(robot)
         if robot.kidnap == True: # this can be eliminated because you only enter here if kidnap==True
+            #print('kidnap reset to zero')
             robot.kidnap = False
     robot.vision = True
     #END VISION
@@ -68,15 +71,23 @@ while(1) :
     #FILTERING
     KF.odometry_update(robot)
     KF.filter_kalman(robot)
-    #print(np.degrees(KF.X_est[4][0]),(np.degrees(robot.goal_angle)))
-    #print(KF.X_est)
     
+    if FILTERING_VERBOSE == True:
+        print(f"f_angle= {KF.X_est[4][0]:.2f}")
+        print(f"goal_angle= {robot.goal_angle:.2f}")
+        print("pos", robot.pos_X, robot.pos_Y)
+        print("f_pos",KF.X_est[0][0],KF.X_est[2][0])
+    
+
     #MOTION CONTROL
     
     if not robot.goal_reached_t:
-        motion_control.turn(robot.theta,robot,node)
+        motion_control.turn(KF.X_est[4][0],robot,node)
     if robot.goal_reached_t and not robot.goal_reached_f:
-        motion_control.go_to_next_point(robot.theta,[robot.pos_X,robot.pos_Y],0,robot,node)
+        motion_control.go_to_next_point(KF.X_est[4][0],[KF.X_est[0][0],KF.X_est[2][0]],0,robot,node)
+    
+    if len(robot.path) <= 1:
+        break
 
 # Code for Vision + Visibility global nav 
 """     
