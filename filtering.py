@@ -25,7 +25,7 @@ class KalmanFilter :
         self.pos_theta_odo = 0
         self.angle = 0
 
-        self.v_X = 14
+        self.v_X = 0
         self.v_Y = 0
         self.v_Theta = 0 
 
@@ -58,7 +58,8 @@ class KalmanFilter :
 
         X_estimation = np.dot(self.A, self.X_est_pre)
         P_estimation = np.dot(self.A, np.dot(self.P_est_pre, np.transpose(self.A)))
-        P_estimation = P_estimation + self.Q if type(self.Q) != type(None) else P_estimation
+        P_estimation = P_estimation + self.Q 
+        """  if type(self.Q) != type(None) else P_estimation """
         
         if (Thymio.vision) : # If we have the Computer Vision and Odometry
 
@@ -92,20 +93,20 @@ class KalmanFilter :
                  [0, 6.48, 0],
                  [0, 0, 0.615]]
             
-        #print("y :")
-        #print(y)
+        print("y :")
+        print("H*X_estimation", np.dot(H,X_estimation))
         i = y - np.dot(H, X_estimation)
-        ##print(P_estimation)
+        print("i: ",i)
         S = np.dot(H, np.dot(P_estimation, np.transpose(H))) + R
-        ##print(S)
+        print("S: ",S)
         K = np.dot(P_estimation, np.dot(np.transpose(H),  np.linalg.inv(S)))
-        ##print("K :")
-        ##print(K)
+        print("K :",K)
         # Update of X_est and P_est
         #print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
         #print("value of v theta : ", self.v_Theta)
+        print("K*i: ", np.dot(K, i))
         self.X_est = X_estimation + np.dot(K, i)
-
+        print("X_est:", self.X_est)
         self.X_est[4][0] = np.mod((self.X_est[4][0] + np.pi), 2*np.pi) - np.pi
         self.X_est[4][0] = np.mod(self.X_est[4][0], 2*np.pi)
 
@@ -126,17 +127,23 @@ class KalmanFilter :
 
 
 
-    def odometry_update(self, Thymio) :
+    def odometry_update(self, Thymio, node) :
 
         '''Odometry calculation'''
-
+        Thymio.getSpeeds(node)
         ## ATTENTION AUX UNITÉS DES VARIABLES à définir
         #penser au conversion des  unités
         #penser aux bornes  des angles du passage  de 0 a 2π
         #actualisée en "permanance" en fct de la pos de base (celle donnée par CV qui est actualisée en permanance aussi)
 
-        self.speed_L = Thymio.motor_speed_left
-        self.speed_R = Thymio.motor_speed_right
+        self.speed_L = Thymio.motor_target_left
+        self.speed_R = Thymio.motor_target_right
+
+        
+        self.real_speed_L = Thymio.motor_left_speed 
+        self.real_speed_R = Thymio.motor_right_speed 
+
+        #delta_R = 
 
         #print("speed of L and R :", self.speed_L, ' ', self.speed_R )
         
@@ -144,16 +151,17 @@ class KalmanFilter :
 
         
         delta_t = time.time() - self.pre_time            # time.time() to get the value of the time
-        delta_S = (self.speed_R + self.speed_L) / 2                         # Forward speed
-        self.v_Theta = (self.speed_R - self.speed_L) / self.wheel_dist     # Angular velocity 
+
+        delta_S = (self.real_speed_R + self.real_speed_L) / 2                         # Forward speed
+        self.v_Theta = (self.real_speed_R - self.real_speed_L) / self.wheel_dist     # Angular velocity 
         #print("values of deltaS", delta_S)
         # calculations of the variations of the speed of the Thymio
         '''self.v_X = delta_S * np.cos(Thymio.theta + self.v_Theta/2)          # SPEED in X
         self.v_Y = delta_S * np.sin(Thymio.theta + self.v_Theta/2)          # SPEED in y'''
 
         ##TESTER AVEC CE CALCUL
-        self.v_X = delta_S * np.cos(self.v_Theta/2)          # SPEED in X
-        self.v_Y = delta_S * np.sin(self.v_Theta/2)          # SPEED in y
+        self.v_X = delta_S * np.cos(self.X_est[4][0] + self.v_Theta/2)          # SPEED in X
+        self.v_Y = delta_S * np.sin(self.X_est[4][0] + self.v_Theta/2)          # SPEED in y
 
         ##print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
         ##print("value of v theta : ", self.v_Theta)
