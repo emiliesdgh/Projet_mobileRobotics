@@ -44,13 +44,20 @@ while(1) :
     if (a == 1) : 
         vision.find_corners()
         vision.trace_contours()
-        plt.imshow(cv2.cvtColor(vision.frame, cv2.COLOR_BGR2RGB))
-        plt.show()
     if ((robot.vision == 1) & (a == 1))or((a != 1) & (robot.kidnap == True) & (robot.vision == 1)):
         #print('path recomputed')
         vision.compute_dist_mx(robot)
         global_nav.dijkstra(robot)
         global_nav.extract_path(robot)
+
+        # Plotting
+        plt.imshow(cv2.cvtColor(vision.frame, cv2.COLOR_BGR2RGB))
+        corn_x, corn_y = zip(*vision.cor)
+        path_x, path_y = zip(*robot.path)
+        plt.scatter(corn_x, corn_y, color='red', marker='o', s=15)
+        plt.plot(path_x, path_y, linestyle='-', color='blue', linewidth=2)
+        plt.show()
+
         if robot.kidnap == True: # this can be eliminated because you only enter here if kidnap==True
             #print('kidnap reset to zero')
             robot.kidnap = False
@@ -66,7 +73,7 @@ while(1) :
         print(f"angle={robot.theta:.2f}")
         print(f"goal_angle={robot.goal_angle:.2f}")
         print("path=", robot.path)
-        print("corners=", vision.cornerss)
+        print("corners=", vision.cor)
 
     #FILTERING
     KF.odometry_update(robot)
