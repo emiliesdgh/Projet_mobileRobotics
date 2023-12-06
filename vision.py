@@ -146,6 +146,7 @@ class Vision :
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
         img = cv2.blur(img,(5,5))
+        img = cv2.medianBlur(img,5)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
         ret, thresh2 = cv2.threshold(gray, self.BLACK_THRESHOLD, 255, cv2.THRESH_BINARY) 
         contours, _ = cv2.findContours( 

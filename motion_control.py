@@ -4,9 +4,9 @@ import time
 
 #Define constants
 ANGLE_ERROR_TRESH = 0.1
-DIST_ERROR_TRESH = 3               
+DIST_ERROR_TRESH = 5              
 MAX_SPEED=150               
-NOM_SPEED=50
+NOM_SPEED=70
 KP=100                 
 KI=20                  
 KD=10                 
@@ -69,8 +69,6 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         #print(deltax,deltay,'distance =',distance)
         error=np.sqrt(distance)
         if (obstacle==False and ((abs(deltax)<=DIST_ERROR_TRESH) and (abs(deltay)<=DIST_ERROR_TRESH))):
-            print("deltax=",deltax)
-            print("deltay",deltay)
             robot.goal_reached_f = True
             robot.goal_reached_t = False
             robot.prev_error = 0

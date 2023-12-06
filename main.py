@@ -20,7 +20,8 @@ aw(node.wait_for_variables())
 
 # Constant variables
 VISION_VERBOSE = False
-FILTERING_VERBOSE = False
+FILTERING_VERBOSE = True
+OBS_AVOIDANCE = False
 
 #Classes initialization
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
@@ -30,7 +31,7 @@ global_nav = Global_Nav()
 GN = globalNavigation()
 
 #Video capturing 
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
 
 a = 0
       
@@ -44,12 +45,20 @@ while(1) :
     if (a == 1) : 
         vision.find_corners()
         vision.trace_contours()
-    if ((robot.vision == 1) & (a == 1))or((a != 1) & (robot.kidnap == True) & (robot.vision == 1)):
+    if ((robot.vision == 1) and (a == 1))or((a != 1) and (robot.kidnap == True) and (robot.vision == 1)):
         #print('path recomputed')
         vision.compute_dist_mx(robot)
         global_nav.dijkstra(robot)
         global_nav.extract_path(robot)
 
+        if robot.kidnap == True: # this can be eliminated because you only enter here if kidnap==True
+            #print('kidnap reset to zero')
+            print("---------KIDNAPPED------------")
+            robot.setSpeedLeft(0, node)
+            robot.setSpeedRight(0, node)
+            robot.kidnap = False
+    
+    if (a==1):
         # Plotting
         plt.imshow(cv2.cvtColor(vision.frame, cv2.COLOR_BGR2RGB))
         corn_x, corn_y = zip(*vision.cor)
@@ -58,9 +67,6 @@ while(1) :
         plt.plot(path_x, path_y, linestyle='-', color='blue', linewidth=2)
         plt.show()
 
-        if robot.kidnap == True: # this can be eliminated because you only enter here if kidnap==True
-            #print('kidnap reset to zero')
-            robot.kidnap = False
     robot.vision = True
     #END VISION
 
@@ -84,18 +90,26 @@ while(1) :
         print(f"goal_angle= {robot.goal_angle:.2f}")
         print("pos", robot.pos_X, robot.pos_Y)
         print("f_pos",KF.X_est[0][0],KF.X_est[2][0])
+        print("path=", robot.path)
         """ print("X_est_pre", KF.X_est_pre)
         print("X_est", KF.X_est) """
     
+
+    # LOCAL NAVIGATION 
+    if OBS_AVOIDANCE == True:
+        if local_navigation.test_saw_osb(robot,node,500):
+            print("--------------CRASH------------------")
+            local_navigation.obstacle_avoidance(robot,node,client)
 
     #MOTION CONTROL
     
     if not robot.goal_reached_t:
         motion_control.turn(KF.X_est[4][0],robot,node)
     if robot.goal_reached_t and not robot.goal_reached_f:
-        motion_control.go_to_next_point(KF.X_est[4][0],[KF.X_est[0][0],KF.X_est[2][0]],0,robot,node)
-    
+        motion_control.go_to_next_point(KF.X_est[4][0],[KF.X_est[0][0],KF.X_est[2][0]],0,robot,node)    
+
     if len(robot.path) <= 1:
+        print("Goal reached")
         break
 
 # Code for Vision + Visibility global nav 
