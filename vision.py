@@ -35,7 +35,7 @@ class Vision :
         self.NB_SHAPES = 3
         self.NB_CORNERS = 11
         self.d_wide_cor = 75 #au lieu de 60
-        self.mean_value_along_line = 165
+        self.mean_value_along_line = 185
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
@@ -145,8 +145,6 @@ class Vision :
     def find_corners(self):
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
-        img = cv2.blur(img,(5,5))
-        img = cv2.medianBlur(img,5)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
         ret, thresh2 = cv2.threshold(gray, self.BLACK_THRESHOLD, 255, cv2.THRESH_BINARY) 
         contours, _ = cv2.findContours( 

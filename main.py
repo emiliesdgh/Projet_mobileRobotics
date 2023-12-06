@@ -21,7 +21,7 @@ aw(node.wait_for_variables())
 # Constant variables
 VISION_VERBOSE = False
 FILTERING_VERBOSE = True
-OBS_AVOIDANCE = False
+OBS_AVOIDANCE = True
 
 #Classes initialization
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
@@ -31,7 +31,7 @@ global_nav = Global_Nav()
 GN = globalNavigation()
 
 #Video capturing 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
 
 a = 0
       
@@ -67,7 +67,7 @@ while(1) :
         plt.plot(path_x, path_y, linestyle='-', color='blue', linewidth=2)
         plt.show()
 
-    robot.vision = True
+    #robot.vision = True
     #END VISION
 
     if VISION_VERBOSE == True:
@@ -86,6 +86,7 @@ while(1) :
     KF.filter_kalman(robot)
     
     if FILTERING_VERBOSE == True:
+        print("visiontrue",robot.vision)
         print(f"f_angle= {KF.X_est[4][0]:.2f}")
         print(f"goal_angle= {robot.goal_angle:.2f}")
         print("pos", robot.pos_X, robot.pos_Y)
@@ -95,11 +96,12 @@ while(1) :
         print("X_est", KF.X_est) """
     
 
-    # LOCAL NAVIGATION 
+    # LOCAL NAVIGATION
+
     if OBS_AVOIDANCE == True:
         if local_navigation.test_saw_osb(robot,node,500):
             print("--------------CRASH------------------")
-            local_navigation.obstacle_avoidance(robot,node,client)
+            local_navigation.obstacle_avoidance(robot,node,client,obs_threshold=500)
 
     #MOTION CONTROL
     
