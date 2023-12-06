@@ -4,9 +4,9 @@ import time
 
 #Define constants
 ANGLE_ERROR_TRESH = 0.1
-DIST_ERROR_TRESH = 10               
-MAX_SPEED=100               
-NOM_SPEED=(50)
+DIST_ERROR_TRESH = 5              
+MAX_SPEED=150               
+NOM_SPEED=70
 KP=100                 
 KI=20                  
 KD=10                 
@@ -14,13 +14,13 @@ K=0.5
 
 
 def PIDcontrol(error,robot):
-    dt=time.time()-robot.prev_time
+    """ #dt=time.time()-robot.prev_time
     if (error > np.pi):
         error=np.pi-error
         p_speed = KP * error
         robot.int_error += error
         i_speed = KI * robot.int_error
-        d_speed = KD * (error - robot.prev_error)/dt
+        d_speed = KD * (error - robot.prev_error)#/dt
         robot.prev_error = error
 
     elif (error < -np.pi):
@@ -28,16 +28,17 @@ def PIDcontrol(error,robot):
         p_speed = KP * error
         robot.int_error += error
         i_speed = KI * robot.int_error
-        d_speed = KD * (error - robot.prev_error)/dt
+        d_speed = KD * (error - robot.prev_error)#/dt
         robot.prev_error = error
-    else:
-        p_speed = KP * error
-        robot.int_error += error
-        i_speed = KI * robot.int_error
-        d_speed = KD * (error - robot.prev_error)/dt
-        robot.prev_error = error
-    robot.prev_time=time.time()
-    return p_speed+i_speed#+d_speed
+    else: """
+    error = (error + np.pi) %(2*np.pi) - np.pi
+    p_speed = KP * error
+    robot.int_error += error
+    i_speed = KI * robot.int_error
+    d_speed = KD * (error - robot.prev_error)#/dt
+    robot.prev_error = error
+    #robot.prev_time=time.time()
+    return p_speed#+i_speed#+d_speed
 
 def turn(current_angle, robot, node):
 
@@ -67,7 +68,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         distance=deltax**2+deltay**2
         #print(deltax,deltay,'distance =',distance)
         error=np.sqrt(distance)
-        if (obstacle==False and (abs(deltax)<=DIST_ERROR_TRESH) and (abs(deltay)<=DIST_ERROR_TRESH)):
+        if (obstacle==False and ((abs(deltax)<=DIST_ERROR_TRESH) and (abs(deltay)<=DIST_ERROR_TRESH))):
             robot.goal_reached_f = True
             robot.goal_reached_t = False
             robot.prev_error = 0
@@ -76,7 +77,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             robot.setSpeedLeft(0,node)
             robot.path.pop(1)
             if len(robot.path) >1:
-                robot.setAngle()
+                robot.setAngle(current_position[0],current_position[1])
 
         else:
             #print('first loop')
@@ -89,7 +90,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             #print("speed=", leftspeed, rightspeed)
             robot.setSpeedRight(rightspeed,node)
             robot.setSpeedLeft(leftspeed,node)
-            robot.setAngle()
+            robot.setAngle(current_position[0],current_position[1])
     else:
         pass     
 
