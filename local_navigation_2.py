@@ -115,90 +115,90 @@ def obstacle_avoidance(Thymio, node, client, motor_speed=100, obs_threshold=500,
     
         print("\in while loop")
     ##tester si les conditions des if/elif fonctionnent!!    
-        if test_saw_osb(Thymio, node, obs_threshold, verbose=False):
-            print("in first test of obs")
+        #if test_saw_osb(Thymio, node, obs_threshold, verbose=False):
+        print("in first test of obs")
             
-            if prev_state=="forward": 
+        if prev_state=="forward": 
+            
+            if verbose: 
                 
-                if verbose: 
-                    
-                    print("\tSaw wall, turning")
-                    print("\clockwise OR counterclockwise")
+                print("\tSaw wall, turning")
+                print("\clockwise OR counterclockwise")
 
-                    #if clockwise(node, prox, verbose=False) :
-                if clockwise(node, verbose=False) :
-                    
-                    print("in second test of obs")
+                #if clockwise(node, prox, verbose=False) :
+            if clockwise(node, verbose=False) :
+                
+                print("in second test of obs")
 
-                    #await print_sensor_values('prox.horizontal')
-                    #aw(node.set_variables(motors(motor_speed, -motor_speed)))
-                    #node.set_variables(motors(motor_speed, -motor_speed))
+                #await print_sensor_values('prox.horizontal')
+                #aw(node.set_variables(motors(motor_speed, -motor_speed)))
+                #node.set_variables(motors(motor_speed, -motor_speed))
 
-                    Thymio.setSpeedLeft(motor_speed, node)
-                    Thymio.setSpeedRight(-motor_speed, node)
+                Thymio.setSpeedLeft(motor_speed, node)
+                Thymio.setSpeedRight(-motor_speed, node)
 
-                    print("\tSaw wall, turning clockwise CLOCCCKKK")
-                    clockwise_true = True
+                print("\tSaw wall, turning clockwise CLOCCCKKK")
+                clockwise_true = True
 
-                else :
+            else :
 
-                    #aw(node.set_variables(motors(-motor_speed, motor_speed)))
-                    #node.set_variables(motors(-motor_speed, motor_speed))
+                #aw(node.set_variables(motors(-motor_speed, motor_speed)))
+                #node.set_variables(motors(-motor_speed, motor_speed))
 
-                    Thymio.setSpeedLeft(-motor_speed, node)
-                    Thymio.setSpeedRight(motor_speed, node)
+                Thymio.setSpeedLeft(-motor_speed, node)
+                Thymio.setSpeedRight(motor_speed, node)
 
-                    print("\tSaw wall, turning COUNTEERRR counterclockwise")
-                    
-                prev_state="turning"
+                print("\tSaw wall, turning COUNTEERRR counterclockwise")
+                
+            prev_state="turning"
         
-        else:
-            if prev_state=="turning": 
-                if verbose: 
-                    print("\t Contourning obstacle")
+        #else:
+        elif prev_state=="turning": 
+            if verbose: 
+                print("\t Contourning obstacle")
 
-                if clockwise_true :
-                    #aw(node.set_variables(motors(motor_speed-40, motor_speed)))
-                    #node.set_variables(motors(motor_speed-40, motor_speed))
+            if clockwise_true :
+                #aw(node.set_variables(motors(motor_speed-40, motor_speed)))
+                #node.set_variables(motors(motor_speed-40, motor_speed))
 
-                    Thymio.setSpeedLeft(motor_speed-40, node)
-                    Thymio.setSpeedRight(motor_speed, node)
+                Thymio.setSpeedLeft(motor_speed-40, node)
+                Thymio.setSpeedRight(motor_speed, node)
 
-                    prev_state="forward"
-                    print("\t CLOOOOCCCKKK Clockwise")
-                    aw(client.sleep(18))
+                prev_state="forward"
+                print("\t CLOOOOCCCKKK Clockwise")
+                aw(client.sleep(18))
 
-                    #client.sleep(18)
-                    #aw(node.set_variables(motors(motor_speed, -motor_speed)))
-                    #node.set_variables(motors(motor_speed, -motor_speed))
+                #client.sleep(18)
+                #aw(node.set_variables(motors(motor_speed, -motor_speed)))
+                #node.set_variables(motors(motor_speed, -motor_speed))
 
-                    Thymio.setSpeedLeft(motor_speed, node)
-                    Thymio.setSpeedRight(-motor_speed, node)
+                Thymio.setSpeedLeft(motor_speed, node)
+                Thymio.setSpeedRight(-motor_speed, node)
 
-                    aw(client.sleep(2))
-                    #client.sleep(2)
-                    obs_avoided = True
-                    
-                else :
-                    #aw(node.set_variables(motors(motor_speed, motor_speed-40)))
-                    #node.set_variables(motors(motor_speed, motor_speed-40))
+                aw(client.sleep(2))
+                #client.sleep(2)
+                obs_avoided = True
+                
+            else :
+                #aw(node.set_variables(motors(motor_speed, motor_speed-40)))
+                #node.set_variables(motors(motor_speed, motor_speed-40))
 
-                    Thymio.setSpeedLeft(motor_speed,node)
-                    Thymio.setSpeedRight(motor_speed-40,node)
+                Thymio.setSpeedLeft(motor_speed,node)
+                Thymio.setSpeedRight(motor_speed-40,node)
 
-                    prev_state="forward"
-                    print("\t COUNTEEERRR Counterclockwise")
-                    aw(client.sleep(18))
-                    #client.sleep(18)
-                    #aw(node.set_variables(motors(-motor_speed, motor_speed)))
-                    #node.set_variables(motors(-motor_speed, motor_speed))
+                prev_state="forward"
+                print("\t COUNTEEERRR Counterclockwise")
+                aw(client.sleep(18))
+                #client.sleep(18)
+                #aw(node.set_variables(motors(-motor_speed, motor_speed)))
+                #node.set_variables(motors(-motor_speed, motor_speed))
 
-                    Thymio.setSpeedLeft(-motor_speed,node)
-                    Thymio.setSpeedRight(motor_speed,node)
+                Thymio.setSpeedLeft(-motor_speed,node)
+                Thymio.setSpeedRight(motor_speed,node)
 
-                    aw(client.sleep(2))
-                    #client.sleep(2)
-                    obs_avoided = True
+                aw(client.sleep(2))
+                #client.sleep(2)
+                obs_avoided = True
 
         aw(client.sleep(0.1)) #otherwise, variables would not be updated
         #client.sleep(0.1)
