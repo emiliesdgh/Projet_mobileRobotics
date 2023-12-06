@@ -34,8 +34,8 @@ class Vision :
         self.line_width = 2
         self.NB_SHAPES = 3
         self.NB_CORNERS = 11
-        self.d_wide_cor = 70 #au lieu de 60
-        self.mean_value_along_line = 145
+        self.d_wide_cor = 75 #au lieu de 60
+        self.mean_value_along_line = 165
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
@@ -143,7 +143,10 @@ class Vision :
             robot.setVisionDone(False)
 
     def find_corners(self):
-        gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY) 
+        kernel = np.ones((5,5),np.float32)/25
+        img = cv2.filter2D(self.frame,-1,kernel)
+        img = cv2.blur(img,(5,5))
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
         ret, thresh2 = cv2.threshold(gray, self.BLACK_THRESHOLD, 255, cv2.THRESH_BINARY) 
         contours, _ = cv2.findContours( 
             thresh2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
