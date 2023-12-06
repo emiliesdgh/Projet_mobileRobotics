@@ -37,8 +37,8 @@ class KalmanFilter :
     def filter_kalman(self, Thymio) :
         '''Kalman Filter calculations'''
 
-        X_estimation = np.dot(self.A, self.X_est_pre)
-        P_estimation = np.dot(self.A, np.dot(self.P_est_pre, np.transpose(self.A)))
+        X_estimation = self.A @ self.X_est_pre
+        P_estimation = self.A @ (self.P_est_pre @ np.transpose(self.A))
         P_estimation = P_estimation + self.Q # if type(self.Q) != type(None) else P_estimation  # still not sure if we need this line of not
         
         if (Thymio.vision) : # If we have the Computer Vision and Odometry
@@ -69,16 +69,16 @@ class KalmanFilter :
                           [0, 6.48, 0],
                           [0, 0, 0.615]])
 
-        i = y - np.dot(H, X_estimation)
-        S = np.dot(H, np.dot(P_estimation, np.transpose(H))) + R
-        K = np.dot(P_estimation, np.dot(np.transpose(H),  np.linalg.inv(S)))
+        i = y - (H @ X_estimation)
+        S = (H @ (P_estimation @ np.transpose(H))) + R
+        K = (P_estimation @ (np.transpose(H) @ np.linalg.inv(S)))
 
-        self.X_est = X_estimation + np.dot(K, i)
+        self.X_est = X_estimation + (K @ i)
 
         self.X_est[4][0] = np.mod((self.X_est[4][0] + np.pi), 2*np.pi) - np.pi
         self.X_est[4][0] = np.mod(self.X_est[4][0], 2*np.pi)
 
-        self.P_est = P_estimation - np.dot(K, np.dot(H, P_estimation))
+        self.P_est = P_estimation - (K @ (H @ P_estimation))
 
         self.X_est_pre = self.X_est
         self.P_est_pre = self.P_est
