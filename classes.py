@@ -44,8 +44,11 @@ class Thymio :
         self.int_error=0            #for integral part of PID control
         self.prev_time=0
 
-        self.motor_speed_left=0
-        self.motor_speed_right=0
+        self.motor_target_left=0
+        self.motor_target_right=0
+
+        self.motor_left_speed=0
+        self.motor_right_speed=0
 
         self.path=[]
         self.goal_angle=0 
@@ -76,12 +79,18 @@ class Thymio :
         return self.theta
 
     def setSpeedLeft(self,speed,node):
-        self.motor_speed_left=speed
+        self.motor_target_left=speed
         aw(node.set_variables({"motor.left.target": [speed]}))
     
     def setSpeedRight(self,speed,node):
-        self.motor_speed_right=speed
+        self.motor_target_right=speed
         aw(node.set_variables({"motor.right.target": [speed]}))
+
+    def getSpeeds(self,node):
+        aw(node.wait_for_variables({"motor.left.speed", "motor.right.speed"}))
+        self.motor_left_speed = node["motor.left.speed"]
+        self.motor_right_speed = node["motor.right.speed"]
+
 
     def setAngle(self, pos_X, pos_Y):
         self.goal_angle=np.mod(np.arctan2(-(self.path[1][1] - pos_Y), self.path[1][0] - pos_X), 2*np.pi)

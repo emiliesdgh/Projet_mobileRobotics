@@ -59,10 +59,13 @@ def turn(current_angle, robot, node):
             
             robot.setSpeedRight(speed,node)
             robot.setSpeedLeft(-speed,node)   
+    else:
+        pass 
                 
 
 def go_to_next_point(current_angle, current_position, obstacle, robot, node): 
     if len(robot.path) > 1:  
+        robot.setAngle(current_position[0],current_position[1])
         deltax= current_position[0]-robot.path[1][0]
         deltay= current_position[1]-robot.path[1][1]
         distance=deltax**2+deltay**2
@@ -80,6 +83,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
                 robot.setAngle(current_position[0],current_position[1])
 
         else:
+            
             #print('first loop')
             fspeed = K*error+NOM_SPEED
             #print('fspeed=', fspeed)
@@ -90,7 +94,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
             #print("speed=", leftspeed, rightspeed)
             robot.setSpeedRight(rightspeed,node)
             robot.setSpeedLeft(leftspeed,node)
-            robot.setAngle(current_position[0],current_position[1])
+            
     else:
         pass     
 
