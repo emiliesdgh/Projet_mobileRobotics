@@ -19,8 +19,8 @@ aw(node.lock())
 aw(node.wait_for_variables())
 
 # Constant variables
-VISION_VERBOSE = False
-FILTERING_VERBOSE = True
+VISION_VERBOSE = True
+FILTERING_VERBOSE = False
 
 #Classes initialization
 robot=Thymio() # Set Thym as class Thymio as initialization before the while
@@ -30,7 +30,7 @@ global_nav = Global_Nav()
 GN = globalNavigation()
 
 #Video capturing 
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
 
 a = 0
       
@@ -66,17 +66,19 @@ while(1) :
         print(f"angle={robot.theta:.2f}")
         print(f"goal_angle={robot.goal_angle:.2f}")
         print("path=", robot.path)
-        #print("corners=", vision.cornerss)
+        print("corners=", vision.cornerss)
 
     #FILTERING
     KF.odometry_update(robot)
     KF.filter_kalman(robot)
     
     if FILTERING_VERBOSE == True:
-        print(f"f_angle= {KF.X_est[4][0]:.2f}")
-        print(f"goal_angle= {robot.goal_angle:.2f}")
-        print("pos", robot.pos_X, robot.pos_Y)
-        print("f_pos",KF.X_est[0][0],KF.X_est[2][0])
+        #print(f"f_angle= {KF.X_est[4][0]:.2f}")
+        #print(f"goal_angle= {robot.goal_angle:.2f}")
+        #print("pos", robot.pos_X, robot.pos_Y)
+        #print("f_pos",KF.X_est[0][0],KF.X_est[2][0])
+        print("X_est_pre", KF.X_est_pre)
+        print("X_est", KF.X_est)
     
 
     #MOTION CONTROL
