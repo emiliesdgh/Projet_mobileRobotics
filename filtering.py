@@ -106,6 +106,9 @@ class KalmanFilter :
         #print("value of v theta : ", self.v_Theta)
         self.X_est = X_estimation + np.dot(K, i)
 
+        self.X_est[4][0] = np.mod((self.X_est[4][0] + np.pi), 2*np.pi) - np.pi
+        self.X_est[4][0] = np.mod(self.X_est[4][0], 2*np.pi)
+
         #self.theta_corr() 
         #self.X_est[4][0] = np.mod(self.X_est[4][0],2*np.pi)
         #
@@ -116,6 +119,8 @@ class KalmanFilter :
         #print(X_estimation)
         self.P_est = P_estimation - np.dot(K, np.dot(H, P_estimation))
         
+
+        ## test en printant ces valeurs
         self.X_est_pre = self.X_est
         self.P_est_pre = self.P_est
 
@@ -135,7 +140,7 @@ class KalmanFilter :
 
         #print("speed of L and R :", self.speed_L, ' ', self.speed_R )
         
-        self.wheel_dist = 9.5 # Distance between the wheel (where they touch the ground)
+        self.wheel_dist = 95 # en mm à tester !!! 9.5 # en cm Distance between the wheel (where they touch the ground)
 
         
         delta_t = time.time() - self.pre_time            # time.time() to get the value of the time
@@ -143,14 +148,20 @@ class KalmanFilter :
         self.v_Theta = (self.speed_R - self.speed_L) / self.wheel_dist     # Angular velocity 
         #print("values of deltaS", delta_S)
         # calculations of the variations of the speed of the Thymio
-        self.v_X = delta_S * np.cos(Thymio.theta + self.v_Theta/2)          # SPEED in X
-        self.v_Y = delta_S * np.sin(Thymio.theta + self.v_Theta/2)          # SPEED in y
+        '''self.v_X = delta_S * np.cos(Thymio.theta + self.v_Theta/2)          # SPEED in X
+        self.v_Y = delta_S * np.sin(Thymio.theta + self.v_Theta/2)          # SPEED in y'''
+
+        ##TESTER AVEC CE CALCUL
+        self.v_X = delta_S * np.cos(self.v_Theta/2)          # SPEED in X
+        self.v_Y = delta_S * np.sin(self.v_Theta/2)          # SPEED in y
+
         ##print("values of vX qnd vY : ", self.v_X, ' ', self.v_Y)
         ##print("value of v theta : ", self.v_Theta)
         # ou ?((theta_init + delta_Theta)/2)?? savoir lequel est juste 
         # ma version c'est celle du cours en théorie
 
         # update of the position (coordinates and angle/orientation) of the Thymio after time delta_t
+        '''pas forcément nécessaire comme partie du code ?'''
         self.pos_X_odo = self.v_X * delta_t
         self.pos_Y_odo = self.v_Y * delta_t
         self.pos_theta_odo = self.v_Theta * delta_t
@@ -159,7 +170,7 @@ class KalmanFilter :
         # Update for the previous time with the current time for the next iteration
         self.pre_time = time.time()
 
-    def theta_corr(self) :
+    '''def theta_corr(self) :
         if self.X_est[4][0] >= 1.98*np.pi :
             self.X_est[4][0] = self.X_est[4][0] - 2*np.pi
             #self.X_est[4][0] =  self.X_est[4][0] - np.pi
@@ -170,7 +181,7 @@ class KalmanFilter :
 
         else :
             self.X_est[4][0] = self.X_est[4][0]
-        #print("dans theta corr", self.X_est[4][0])
+        #print("dans theta corr", self.X_est[4][0])'''
         
 '''
         ##&&&&&& ATTTTEEENTIIIOOONNNNNN
