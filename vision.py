@@ -22,7 +22,7 @@ class Vision :
         self.palier_min = 50
         self.palier_max_x = 500
         self.palier_max_y = 370
-        self.BLACK_THRESHOLD = 35
+        self.BLACK_THRESHOLD = 40
         self.LOW_RED = (115,50,130)
         self.HIGH_RED = (135,200,170)
         self.LOW_BLUE = (100,150,0)
@@ -42,8 +42,6 @@ class Vision :
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
-        self.width_resized = 19
-        self.height_resized = 15
         self.kid_threshold = 200
 
         #Variables
@@ -65,6 +63,8 @@ class Vision :
         self.dist_mx = []
         self.border_points = []
         self.M = 0 
+        self.img_show = 0 
+        self.positions = []
 
     def capture_image(self,cap): 
         #capture a frame out of the video that will be used through CV part 
@@ -73,12 +73,6 @@ class Vision :
         #first frame catpured is "yellowish" and unusable 
         ret, self.frame = cap.read()
         ret, self.frame = cap.read()
-
-        # Code for plotting the camera (comment if you need but DO NOT ELIMINATE)
-        """ plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
-        plt.ion()
-        plt.show()
-        plt.pause(.01) """
 
         kernel = np.ones((5,5),np.float32)/25
         img = cv2.filter2D(self.frame,-1,kernel)
@@ -184,6 +178,7 @@ class Vision :
             if ((abs(self.x_back - x_back) > self.kid_threshold) or (abs(self.y_back - y_back) > self.kid_threshold)) & (a !=1):
                 robot.kidnap = True
             [self.x_back,self.y_back] = [x_back,y_back]
+            self.positions.append([self.x_back,self.y_back])
 
     def find_angle(self,robot):
         kernel = np.ones((5,5),np.float32)/25
@@ -282,9 +277,9 @@ class Vision :
             if x1 >= 519:
                 x1 = 518
             if x1 >50:
-                if x1<520:
+                if x1<480:
                     if y1 >50:
-                        if y1<397:
+                        if y1<350:
                             cor.append([x1,y1])
             cornerss.append([x1,y1])
             m_cor.append(m[n_m])
@@ -362,11 +357,3 @@ class Vision :
         robot.setDistMx(dist_mx)
         robot.setCor(self.cor)
         robot.setS(s)
-
-    def return_occupancy_matrix(self,robot):
-        dim = (self.width_resized, self.height_resized)
-        img = cv2.resize(self.img, dim, interpolation = cv2.INTER_AREA)
-        rszd = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        mtx = np.array(rszd)
-        mx = (mtx < 20).astype(int)
-        robot.occupancy_matrix = mx
