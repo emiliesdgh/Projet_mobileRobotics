@@ -5,7 +5,7 @@ from classes import Thymio
 from vision import Vision
 
 Thymio_speedTo_mm_ratio = 0.4
-speed_ratio = Thymio_speedTo_mm_ratio * Vision.ORIGINAL_DIM / 952
+speed_ratio = Thymio_speedTo_mm_ratio * Vision().ORIGINAL_DIM[0] / 952
 wheel_dist = 52 #in pixels
 
 class KalmanFilter :

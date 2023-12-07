@@ -31,7 +31,7 @@ global_nav = Global_Nav()
 GN = globalNavigation()
 
 #Video capturing 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # CAP_DSHOW is needed for other computers (Diana, Kike and Emilie) 
 
 a = 0
       
@@ -66,7 +66,7 @@ while(1) :
         corn_x, corn_y = zip(*vision.cor)
         path_x, path_y = zip(*robot.path)
         plt.scatter(corn_x, corn_y, color='red', marker='o', s=15)
-        plt.plot(path_x, path_y, linestyle='-', color='blue', linewidth=2)
+        plt.plot(path_x, path_y, linestyle='-', color='red', linewidth=2)
         plt.show()
         
     #robot.vision = True

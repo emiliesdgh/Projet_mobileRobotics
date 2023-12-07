@@ -23,8 +23,8 @@ class Vision :
         self.palier_max_x = 500
         self.palier_max_y = 370
         self.BLACK_THRESHOLD = 35
-        self.LOW_RED = (110,50,50)
-        self.HIGH_RED = (130,255,255)
+        self.LOW_RED = (121,50,125)
+        self.HIGH_RED = (125,195,170)
         self.LOW_BLUE = (100,150,0)
         self.HIGH_BLUE = (140,255,255)
         self.LOW_GREEN = (55,42,0)
@@ -100,10 +100,8 @@ class Vision :
         yellow = np.zeros_like(img, np.uint8)
         yellow[imask] = img[imask]
         im = cv2.cvtColor(yellow, cv2.COLOR_BGR2GRAY)
-        plt.imshow(im,'gray')
         im = cv2.medianBlur(im,5)
         ret,thresh1 = cv2.threshold(im,20,255,cv2.THRESH_BINARY_INV)
-        plt.imshow(thresh1,'gray')
         contours, _ = cv2.findContours( 
             thresh1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
         i = 0
@@ -137,10 +135,10 @@ class Vision :
         width1 = np.sqrt(((b_down_l[0] - b_down_r[0]) ** 2) + ((b_down_l[1] - b_down_r[1]) ** 2))
         width2 = np.sqrt(((b_up_l[0] - b_up_r[0]) ** 2) + ((b_up_l[1] - b_up_r[1]) ** 2))
         maxWidth = max(int(width1), int(width2))
-        inputs = np.float32([b_down_l,b_up_l,b_up_r,b_down_r])
+        inputs = np.float32([b_up_l,b_down_l,b_down_r,b_up_r])
         outputs = np.float32([[0, 0], [0,maxHeight - 1],[maxWidth - 1, maxHeight - 1],[maxWidth - 1, 0]])
         self.M = cv2.getPerspectiveTransform(inputs,outputs)
-        self.img_out = cv2.warpPerspective(self.frame,M,(maxWidth, maxHeight),flags=cv2.INTER_LINEAR)
+        self.img_out = cv2.warpPerspective(self.frame,self.M,(maxWidth, maxHeight),flags=cv2.INTER_LINEAR)
 
     def find_goal_pos(self):
         #Isolate goal red square and find the center position 
@@ -212,6 +210,7 @@ class Vision :
                 if self.x_front <= self.x_back : 
                     self.teta = np.pi + np.arccos((self.x_back-self.x_front)/(np.sqrt(np.power((self.x_front-self.x_back),2)+np.power((self.y_front-self.y_back),2))))
             robot.setPositions(self.x_back,self.y_back,self.x_goal,self.y_goal,self.teta)
+            print('vision angle', self.teta)
             robot.setVisionDone(True)
         #Hidden thymio, do not update the vision variables 
         else:
@@ -278,10 +277,10 @@ class Vision :
                 x1 = 0
             if y1 < 0:
                 y1 = 0
-            if y1 >= 398:
-                y1 = 397
-            if x1 >= 520:
-                x1 = 519
+            if y1 >= 397:
+                y1 = 396
+            if x1 >= 519:
+                x1 = 518
             if x1 >50:
                 if x1<520:
                     if y1 >50:

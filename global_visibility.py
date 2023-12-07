@@ -83,3 +83,4 @@ class Global_Nav :
             robot.setAngle(robot.pos_X,robot.pos_Y)
         self.path = path 
         self.path_coord = path_coord
+        print('path vision',self.path)
