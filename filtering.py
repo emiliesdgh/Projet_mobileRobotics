@@ -4,7 +4,8 @@ import numpy as np
 from classes import Thymio
 from vision import Vision
 
-speed_ratio = Vision.ORIGINAL_DIM / 952
+Thymio_speedTo_mm_ratio = 0.4
+speed_ratio = Thymio_speedTo_mm_ratio * Vision.ORIGINAL_DIM / 952
 wheel_dist = 52 #in pixels
 
 class KalmanFilter :
@@ -79,7 +80,6 @@ class KalmanFilter :
 
         i = y - np.dot(H, X_estimation)
         S = np.dot(H, np.dot(P_estimation, np.transpose(H))) + R
-        
         K = np.dot(P_estimation, np.dot(np.transpose(H),  np.linalg.inv(S)))
 
         self.X_est = X_estimation + np.dot(K, i)
