@@ -8,26 +8,29 @@ import math
 from skimage import draw
 from classes import Thymio
 from IPython.display import clear_output
+from operator import itemgetter
 
 class Vision :
     
     def __init__ (self) :
 
         #Constants
-        self.ORIGINAL_DIM = [640,480]
+        self.ORIGINAL_DIM = [519,398]
         self.max_y = 479
         self.max_x = 639
         self.min_x_y = 0
         self.palier_min = 50
         self.palier_max_x = 550
         self.palier_max_y = 430
-        self.BLACK_THRESHOLD = 40
+        self.BLACK_THRESHOLD = 35
         self.LOW_RED = (110,50,50)
         self.HIGH_RED = (130,255,255)
         self.LOW_BLUE = (100,150,0)
         self.HIGH_BLUE = (140,255,255)
         self.LOW_GREEN = (55,42,0)
         self.HIGH_GREEN = (84,255,255)
+        self.LOW_YELLOW = (90, 85, 110)
+        self.HIGH_YELLOW = (110, 155, 175)
         self.redpx = (255,0,0)
         self.greenpx = (0,255,0)
         self.bluepx = (0,0,255)
@@ -46,6 +49,7 @@ class Vision :
         #Variables
         self.frame = 0 
         self.img = 0 
+        self.img_out = 0
         self.thresh1 = 0
         self.thresh2 = 0
         self.x_front = 0
@@ -59,6 +63,8 @@ class Vision :
         self.m_cor = []
         self.path = []
         self.dist_mx = []
+        self.border_points = []
+        self.M = 0 
 
     def capture_image(self,cap): 
         #capture a frame out of the video that will be used through CV part 
@@ -79,13 +85,74 @@ class Vision :
         img = cv2.blur(img,(5,5))
         self.img = cv2.medianBlur(img,5)
 
+    def find_borders(self):
+        border_points = []
+
+        kernel = np.ones((5,5),np.float32)/25
+        img = cv2.filter2D(self.frame,-1,kernel)
+        img = cv2.blur(img,(5,5))
+        img = cv2.medianBlur(img,5)
+
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+
+        mask = cv2.inRange(hsv, self.LOW_YELLOW, self.HIGH_YELLOW)
+        imask = mask>0
+        yellow = np.zeros_like(img, np.uint8)
+        yellow[imask] = img[imask]
+        im = cv2.cvtColor(yellow, cv2.COLOR_BGR2GRAY)
+        plt.imshow(im,'gray')
+        im = cv2.medianBlur(im,5)
+        ret,thresh1 = cv2.threshold(im,20,255,cv2.THRESH_BINARY_INV)
+        plt.imshow(thresh1,'gray')
+        contours, _ = cv2.findContours( 
+            thresh1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
+        i = 0
+        for contour in contours: 
+            if i == 0: 
+                i = 1
+                continue
+            M = cv2.moments(contour) 
+            if M['m00'] != 0.0: 
+                x = int(M['m10']/M['m00']) 
+                y = int(M['m01']/M['m00']) 
+                border_points.append([x,y])
+
+        self.border_points = border_points
+
+    def tilt_image(self):
+        b = sorted(self.border_points, key=itemgetter(0))
+        border_left = [b[0],b[1]]
+        border_right = [b[2],b[3]]
+        border_left = sorted(border_left, key=itemgetter(1))
+        border_right = sorted(border_right, key=itemgetter(1))
+        b_up_r = border_right[0]
+        b_up_l = border_left[0]
+        b_down_r = border_right[1]
+        b_down_l = border_left[1]
+        #Heights
+        height1 = np.sqrt(((b_down_l[0] - b_up_l[0]) ** 2) + ((b_down_l[1] - b_up_l[1]) ** 2))
+        height2 = np.sqrt(((b_down_r[0] - b_up_r[0]) ** 2) + ((b_down_r[1] - b_up_r[1]) ** 2))
+        maxHeight = max(int(height1), int(height2))
+        #Widths
+        width1 = np.sqrt(((b_down_l[0] - b_down_r[0]) ** 2) + ((b_down_l[1] - b_down_r[1]) ** 2))
+        width2 = np.sqrt(((b_up_l[0] - b_up_r[0]) ** 2) + ((b_up_l[1] - b_up_r[1]) ** 2))
+        maxWidth = max(int(width1), int(width2))
+        inputs = np.float32([b_down_l,b_up_l,b_up_r,b_down_r])
+        outputs = np.float32([[0, 0], [0,maxHeight - 1],[maxWidth - 1, maxHeight - 1],[maxWidth - 1, 0]])
+        self.M = cv2.getPerspectiveTransform(inputs,outputs)
+        self.img_out = cv2.warpPerspective(self.frame,M,(maxWidth, maxHeight),flags=cv2.INTER_LINEAR)
+
     def find_goal_pos(self):
         #Isolate goal red square and find the center position 
-        hsv = cv2.cvtColor(self.img, cv2.COLOR_RGB2HSV)
+        kernel = np.ones((5,5),np.float32)/25
+        img = cv2.filter2D(self.img_out,-1,kernel)
+        img = cv2.blur(img,(5,5))
+        img = cv2.medianBlur(img,5)
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         mask = cv2.inRange(hsv, self.LOW_RED, self.HIGH_RED)
         imask = mask>0
-        red = np.zeros_like(self.img, np.uint8)
-        red[imask] = self.img[imask]
+        red = np.zeros_like(img, np.uint8)
+        red[imask] = img[imask]
 
         im = cv2.cvtColor(red, cv2.COLOR_BGR2GRAY)
         ret,self.thresh1 = cv2.threshold(im,2,255,cv2.THRESH_BINARY_INV)
@@ -104,9 +171,13 @@ class Vision :
     def find_start_pos(self,robot,a):
         #Isolate middle green point on the thymio through color filtering and find its approximate position 
         #using maxLoc function 
-        hsv = cv2.cvtColor(self.img, cv2.COLOR_RGB2HSV)
+        kernel = np.ones((5,5),np.float32)/25
+        img = cv2.filter2D(self.img_out,-1,kernel)
+        img = cv2.blur(img,(5,5))
+        img = cv2.medianBlur(img,5)
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
         mask = cv2.inRange(hsv, self.LOW_GREEN, self.HIGH_GREEN)
-        green = cv2.bitwise_and(self.frame,self.frame, mask = mask)
+        green = cv2.bitwise_and(self.img_out,self.img_out, mask = mask)
         gray = cv2.cvtColor(green, cv2.COLOR_BGR2GRAY) 
         _, self.thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY) 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(self.thresh1)
@@ -117,9 +188,13 @@ class Vision :
             [self.x_back,self.y_back] = [x_back,y_back]
 
     def find_angle(self,robot):
-        hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
+        kernel = np.ones((5,5),np.float32)/25
+        img = cv2.filter2D(self.img_out,-1,kernel)
+        img = cv2.blur(img,(5,5))
+        img = cv2.medianBlur(img,5)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, self.LOW_BLUE, self.HIGH_BLUE)
-        blue = cv2.bitwise_and(self.frame,self.frame, mask = mask)
+        blue = cv2.bitwise_and(self.img_out,self.img_out, mask = mask)
         gray = cv2.cvtColor(blue, cv2.COLOR_RGB2GRAY) 
         _, self.thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY) 
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(self.thresh1)
@@ -144,7 +219,7 @@ class Vision :
 
     def find_corners(self):
         kernel = np.ones((5,5),np.float32)/25
-        img = cv2.filter2D(self.frame,-1,kernel)
+        img = cv2.filter2D(self.img_out,-1,kernel)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
         ret, thresh2 = cv2.threshold(gray, self.BLACK_THRESHOLD, 255, cv2.THRESH_BINARY) 
         contours, _ = cv2.findContours( 
@@ -199,26 +274,25 @@ class Vision :
                     y1 = y - delta_y
             x1 = int(x1)
             y1 = int(y1)
-
             if x1 < 0:
                 x1 = 0
             if y1 < 0:
                 y1 = 0
-            if y1 >= 480:
-                y1 = 479
-            if x1 >= 640:
-                x1 = 639
+            if y1 >= 398:
+                y1 = 397
+            if x1 >= 520:
+                x1 = 519
             if x1 >50:
-                if x1<600:
+                if x1<520:
                     if y1 >50:
-                        if y1<420:
+                        if y1<397:
                             cor.append([x1,y1])
             cornerss.append([x1,y1])
             m_cor.append(m[n_m])
-            cv2.circle(self.img, (x1, y1), 3, 255, -1)
+            cv2.circle(self.img_out, (x1, y1), 3, 255, -1)
 
         for mo in  m:
-            cv2.circle(self.img, [mo[0],mo[1]], 3, (0, 255, 0), cv2.FILLED)
+            cv2.circle(self.img_out, [mo[0],mo[1]], 3, (0, 255, 0), cv2.FILLED)
 
         self.cor = cor
         self.cornerss = cornerss
