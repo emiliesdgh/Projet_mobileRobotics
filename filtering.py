@@ -2,8 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from classes import Thymio
+from vision import Vision
 
-speed_ratio = 0
+speed_ratio = Vision.ORIGINAL_DIM / 952
+wheel_dist = 52 #in pixels
 
 class KalmanFilter :
 
@@ -17,6 +19,7 @@ class KalmanFilter :
 
         self.P_est = np.eye(6)
         self.X_est = np.array([[0],[0],[0],[0],[0],[0]]) # Contains all values : [x, x°, y, y°, theta, theta°]
+        
         self.X_est_pre = self.X_est
         self.P_est_pre = self.P_est
         
@@ -39,11 +42,16 @@ class KalmanFilter :
 
         X_estimation = np.dot(self.A, self.X_est_pre)
         P_estimation = np.dot(self.A, np.dot(self.P_est_pre, np.transpose(self.A)))
-        P_estimation = P_estimation + self.Q # if type(self.Q) != type(None) else P_estimation  # still not sure if we need this line of not
+        P_estimation = P_estimation + self.Q if type(self.Q) != type(None) else P_estimation  # still not sure if we need this line of not
         
         if (Thymio.vision) : # If we have the Computer Vision and Odometry
 
-            y = np.array([[Thymio.pos_X],[self.v_X],[Thymio.pos_Y],[self.v_Y],[Thymio.theta],[self.v_Theta]])
+            y = np.array([[Thymio.pos_X],
+                          [self.v_X],
+                          [Thymio.pos_Y],
+                          [self.v_Y],
+                          [Thymio.theta],
+                          [self.v_Theta]])
 
             H = np.eye(6) # y = [x, x°, y, y°, theta, theta°]'
 
@@ -55,11 +63,11 @@ class KalmanFilter :
                           [0, 0, 0, 0, 0.0049, 0],
                           [0, 0, 0, 0, 0, 0.615]])
 
-            Thymio.vision = 0 # Reset the Computer Vision booleen to 0
-
         else : # if we only have the Odometry
 
-            y = np.array([[self.v_X],[self.v_Y],[self.v_Theta]])
+            y = np.array([[self.v_X],
+                          [self.v_Y],
+                          [self.v_Theta]])
 
             H = np.array([[0, 1, 0, 0, 0, 0],
                           [0, 0, 0, 1, 0, 0],
@@ -71,6 +79,7 @@ class KalmanFilter :
 
         i = y - np.dot(H, X_estimation)
         S = np.dot(H, np.dot(P_estimation, np.transpose(H))) + R
+        
         K = np.dot(P_estimation, np.dot(np.transpose(H),  np.linalg.inv(S)))
 
         self.X_est = X_estimation + np.dot(K, i)
@@ -82,6 +91,8 @@ class KalmanFilter :
 
         self.X_est_pre = self.X_est
         self.P_est_pre = self.P_est
+        
+        Thymio.vision = 0 # Reset the Computer Vision booleen to 0
 
     def odometry_update(self, Thymio, node) :
         '''Odometry calculation'''
@@ -94,7 +105,7 @@ class KalmanFilter :
         self.wheel_dist = 95 # en mm à tester !!! 9.5 # en cm Distance between the wheel (where they touch the ground)
 
         delta_S = (self.real_speed_R + self.real_speed_L) / 2                         # Forward speed
-        self.v_Theta = (self.real_speed_R - self.real_speed_L) / self.wheel_dist     # Angular velocity 
+        self.v_Theta = (self.real_speed_R - self.real_speed_L) * speed_ratio / (2*wheel_dist)   # Angular velocity 
         
         self.v_X = delta_S * np.cos(self.X_est[4][0]) * speed_ratio         # SPEED in X
         self.v_Y = delta_S * np.sin(self.X_est[4][0]) * speed_ratio         # SPEED in y
