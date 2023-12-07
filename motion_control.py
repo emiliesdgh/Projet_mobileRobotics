@@ -63,7 +63,7 @@ def turn(current_angle, robot, node):
         pass 
                 
 
-def go_to_next_point(current_angle, current_position, obstacle, robot, node): 
+def go_to_next_point(current_angle, current_position, robot, node): 
     if len(robot.path) > 1:  
         robot.setAngle(current_position[0],current_position[1])
         deltax= current_position[0]-robot.path[1][0]
@@ -71,7 +71,7 @@ def go_to_next_point(current_angle, current_position, obstacle, robot, node):
         distance=deltax**2+deltay**2
         #print(deltax,deltay,'distance =',distance)
         error=np.sqrt(distance)
-        if (obstacle==False and ((abs(deltax)<=DIST_ERROR_TRESH) and (abs(deltay)<=DIST_ERROR_TRESH))):
+        if ((abs(deltax)<=DIST_ERROR_TRESH) and (abs(deltay)<=DIST_ERROR_TRESH)):
             robot.goal_reached_f = True
             robot.goal_reached_t = False
             robot.prev_error = 0

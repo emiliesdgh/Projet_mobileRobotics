@@ -19,6 +19,7 @@ class Global_Nav :
         self.current_node = 0
         self.path = []
         self.path_coord = []
+        self.path_coord_copy = []
 
     def dijkstra(self,robot):
 
@@ -79,6 +80,7 @@ class Global_Nav :
                     path_coord.append(cor[i])
         path_coord.append([robot.goal_X,robot.goal_Y])
         robot.path = path_coord
+        self.path_coord_copy = self.path_coord
         if len(path_coord)>1:
             robot.setAngle(robot.pos_X,robot.pos_Y)
         self.path = path 
