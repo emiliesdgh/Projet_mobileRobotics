@@ -24,19 +24,19 @@ class KalmanFilter :
         self.X_est_pre = self.X_est
         self.P_est_pre = self.P_est
         
-        self.A = np.array([[1, self.Ts, 0, 0, 0, 0], 
-                           [0,  1, 0, 0, 0, 0],
-                           [0, 0, 1, self.Ts, 0, 0],
-                           [0, 0, 0,  1, 0, 0],
-                           [0, 0, 0, 0, 1, self.Ts],
-                           [0, 0, 0, 0, 0,  1]])
+        self.A = np.array([[1, self.Ts, 0,    0,    0,    0], 
+                           [0,    1,    0,    0,    0,    0],
+                           [0,    0,    1, self.Ts, 0,    0],
+                           [0,    0,    0,    1,    0,    0],
+                           [0,    0,    0,    0,    1, self.Ts],
+                           [0,    0,    0,    0,    0,    1]])
         
-        self.Q = np.array([[0.337, 0, 0, 0, 0, 0], 
-                           [0, 6.48, 0, 0, 0, 0],
-                           [0, 0, 0.337, 0, 0, 0],
-                           [0, 0, 0, 6.48, 0, 0],
-                           [0, 0, 0, 0, 0.0049, 0],
-                           [0, 0, 0, 0, 0, 0.615]])
+        self.Q = np.array([[0.337, 0, 0, 0, 0,  0], 
+                           [0, 6.48,  0, 0, 0,  0],
+                           [0, 0, 0.337, 0, 0,  0],
+                           [0, 0, 0, 6.48,  0,  0],
+                           [0, 0, 0, 0, 0.01,   0],
+                           [0, 0, 0, 0, 0,  0.615]])
          
     def filter_kalman(self, Thymio) :
         '''Kalman Filter calculations'''
@@ -58,10 +58,10 @@ class KalmanFilter :
 
             # R : Covariance Matrix of the mesures/sensors
             R = np.array([[0.337, 0, 0, 0, 0, 0], 
-                          [0, 6.48, 0, 0, 0, 0],
+                          [0, 6.48,  0, 0, 0, 0],
                           [0, 0, 0.337, 0, 0, 0],
-                          [0, 0, 0, 6.48, 0, 0],
-                          [0, 0, 0, 0, 0.0049, 0],
+                          [0, 0, 0, 6.48,  0, 0],
+                          [0, 0, 0, 0, 0.01,  0],
                           [0, 0, 0, 0, 0, 0.615]])
 
         else : # if we only have the Odometry
@@ -79,7 +79,9 @@ class KalmanFilter :
                           [0, 0, 0.615]])
 
         i = y - np.dot(H, X_estimation)
+
         S = np.dot(H, np.dot(P_estimation, np.transpose(H))) + R
+
         K = np.dot(P_estimation, np.dot(np.transpose(H),  np.linalg.inv(S)))
 
         self.X_est = X_estimation + np.dot(K, i)
@@ -102,8 +104,6 @@ class KalmanFilter :
         self.real_speed_L = Thymio.motor_left_speed 
         self.real_speed_R = Thymio.motor_right_speed 
         
-        self.wheel_dist = 95 # en mm à tester !!! 9.5 # en cm Distance between the wheel (where they touch the ground)
-
         delta_S = (self.real_speed_R + self.real_speed_L) / 2                         # Forward speed
         self.v_Theta = (self.real_speed_R - self.real_speed_L) * speed_ratio / (2*wheel_dist)   # Angular velocity 
         
