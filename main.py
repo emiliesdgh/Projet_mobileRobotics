@@ -39,6 +39,8 @@ while(1) :
     a = a + 1
     #VISION
     vision.capture_image(cap)
+    vision.find_borders()
+    vision.tilt_image()
     vision.find_goal_pos()
     vision.find_start_pos(robot,a)
     vision.find_angle(robot)
@@ -50,8 +52,6 @@ while(1) :
         vision.compute_dist_mx(robot)
         global_nav.dijkstra(robot)
         global_nav.extract_path(robot)
-        robot.path = [[92,268],[200,223],[543,195]]
-        # (92,268) , (200, 223) , (543,195)
 
         if robot.kidnap == True: # this can be eliminated because you only enter here if kidnap==True
             #print('kidnap reset to zero')
