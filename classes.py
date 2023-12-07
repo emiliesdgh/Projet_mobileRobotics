@@ -38,7 +38,7 @@ class Thymio :
         self.vision = 0     #if CV is done or not
         self.kidnap = False
 
-        self.goal_reached_t=False     #has the robot reached right angle
+        self.goal_reached_t=False   #has the robot reached right angle
         self.goal_reached_f=False   #has the robot reached the next point
         self.prev_error=0           #for derivative part of PID control
         self.int_error=0            #for integral part of PID control
