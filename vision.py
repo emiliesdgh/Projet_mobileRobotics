@@ -23,8 +23,8 @@ class Vision :
         self.palier_max_x = 500
         self.palier_max_y = 370
         self.BLACK_THRESHOLD = 35
-        self.LOW_RED = (121,50,125)
-        self.HIGH_RED = (125,195,170)
+        self.LOW_RED = (115,50,130)
+        self.HIGH_RED = (135,200,170)
         self.LOW_BLUE = (100,150,0)
         self.HIGH_BLUE = (140,255,255)
         self.LOW_GREEN = (55,42,0)
