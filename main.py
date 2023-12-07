@@ -85,6 +85,8 @@ while(1) :
     
     print("visiontrue",robot.vision)
 
+    robot.theta =  np.mod((robot.theta + np.pi), 2*np.pi) - np.pi 
+
     #FILTERING
     KF.odometry_update(robot, node)
     KF.filter_kalman(robot)
