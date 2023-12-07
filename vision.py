@@ -42,8 +42,6 @@ class Vision :
         self.max_nb_threshold = 3
         self.v_inf = 3000
         self.no_node = 42
-        self.width_resized = 19
-        self.height_resized = 15
         self.kid_threshold = 200
 
         #Variables
@@ -365,11 +363,3 @@ class Vision :
         robot.setDistMx(dist_mx)
         robot.setCor(self.cor)
         robot.setS(s)
-
-    def return_occupancy_matrix(self,robot):
-        dim = (self.width_resized, self.height_resized)
-        img = cv2.resize(self.img, dim, interpolation = cv2.INTER_AREA)
-        rszd = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        mtx = np.array(rszd)
-        mx = (mtx < 20).astype(int)
-        robot.occupancy_matrix = mx
