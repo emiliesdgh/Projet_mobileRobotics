@@ -16,12 +16,12 @@ class Vision :
 
         #Constants
         self.ORIGINAL_DIM = [519,398]
-        self.max_y = 479
-        self.max_x = 639
+        self.max_y = 398
+        self.max_x = 519
         self.min_x_y = 0
         self.palier_min = 50
-        self.palier_max_x = 550
-        self.palier_max_y = 430
+        self.palier_max_x = 500
+        self.palier_max_y = 370
         self.BLACK_THRESHOLD = 35
         self.LOW_RED = (110,50,50)
         self.HIGH_RED = (130,255,255)
