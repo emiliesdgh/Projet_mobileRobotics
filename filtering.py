@@ -19,7 +19,7 @@ class KalmanFilter :
         self.Ts = 0.1
 
         self.P_est = np.eye(6)
-        self.X_est = np.array([[0],[0],[0],[0],[0],[0]]) # Contains all values : [x, x°, y, y°, theta, theta°]
+        self.X_est = np.array([[0],[0],[0],[0],[0],[0]])
         
         self.X_est_pre = self.X_est
         self.P_est_pre = self.P_est
@@ -42,9 +42,10 @@ class KalmanFilter :
         '''Kalman Filter calculations'''
 
         X_estimation = np.dot(self.A, self.X_est_pre)
-        P_estimation = np.dot(self.A, np.dot(self.P_est_pre, np.transpose(self.A)))
-        P_estimation = P_estimation + self.Q if type(self.Q) != type(None) else P_estimation  # still not sure if we need this line of not
         
+        P_estimation = np.dot(self.A, np.dot(self.P_est_pre, np.transpose(self.A)))
+        P_estimation = P_estimation + self.Q if type(self.Q) != type(None) else P_estimation 
+
         if (Thymio.vision) : # If we have the Computer Vision and Odometry
 
             y = np.array([[Thymio.pos_X],
@@ -54,9 +55,8 @@ class KalmanFilter :
                           [Thymio.theta],
                           [self.v_Theta]])
 
-            H = np.eye(6) # y = [x, x°, y, y°, theta, theta°]'
+            H = np.eye(6)
 
-            # R : Covariance Matrix of the mesures/sensors
             R = np.array([[0.337, 0, 0, 0, 0, 0], 
                           [0, 6.48,  0, 0, 0, 0],
                           [0, 0, 0.337, 0, 0, 0],
@@ -72,7 +72,7 @@ class KalmanFilter :
 
             H = np.array([[0, 1, 0, 0, 0, 0],
                           [0, 0, 0, 1, 0, 0],
-                          [0, 0, 0, 0, 0, 1]]) # y = [0, x°, 0, y°, 0, theta°]' -> only the velocities
+                          [0, 0, 0, 0, 0, 1]])
             
             R = np.array([[6.48, 0, 0],
                           [0, 6.48, 0],
@@ -104,7 +104,7 @@ class KalmanFilter :
         self.real_speed_L = Thymio.motor_left_speed 
         self.real_speed_R = Thymio.motor_right_speed 
         
-        delta_S = (self.real_speed_R + self.real_speed_L) / 2                         # Forward speed
+        delta_S = (self.real_speed_R + self.real_speed_L) / 2               # Forward speed
         self.v_Theta = (self.real_speed_R - self.real_speed_L) * speed_ratio / (2*wheel_dist)   # Angular velocity 
         
         self.v_X = delta_S * np.cos(self.X_est[4][0]) * speed_ratio         # SPEED in X
