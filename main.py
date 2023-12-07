@@ -8,7 +8,6 @@ import copy
 #import the classes from the other modules
 from classes import Thymio
 from filtering import KalmanFilter
-from global_navigation import globalNavigation
 import motion_control
 import local_navigation
 from vision import *
@@ -24,7 +23,6 @@ robot=Thymio()
 KF = KalmanFilter()
 vision = Vision()
 global_nav = Global_Nav()
-GN = globalNavigation()
 
 cv2.namedWindow('Window',cv2.WINDOW_AUTOSIZE)
 
