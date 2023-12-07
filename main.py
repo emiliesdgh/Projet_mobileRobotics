@@ -62,7 +62,7 @@ while(1) :
     
     if (a==1):
         # Plotting
-        plt.imshow(cv2.cvtColor(vision.frame, cv2.COLOR_BGR2RGB))
+        plt.imshow(cv2.cvtColor(vision.img_out, cv2.COLOR_BGR2RGB))
         corn_x, corn_y = zip(*vision.cor)
         path_x, path_y = zip(*robot.path)
         plt.scatter(corn_x, corn_y, color='red', marker='o', s=15)
